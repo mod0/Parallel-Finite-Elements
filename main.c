@@ -16,14 +16,14 @@ int main(int argc, char** argv)
   double ub_x = 1;    // The upper bound of the domain in the y direction
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
-  double h = 1e-2;    // The resolution of the discrete grid on the domain
+  int N = 100;        // The number of grid segments
 
   grid_prop gProperties;
   gProperties.lb_x = lb_x;
   gProperties.lb_y = lb_y;
   gProperties.ub_x = ub_x;
   gProperties.ub_y = ub_y;
-  gProperties.h = h;
+  gProperties.N = N;
 
   // Create a grid with the grid properties object.
   grid* cartesian_grid = build_cartesian_grid(gProperties);
