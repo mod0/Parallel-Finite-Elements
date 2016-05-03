@@ -23,12 +23,16 @@ double* uniform_partition(double lb, double ub, int N)
 }
 
 
-grid* build_cartesian_grid(grid_prop gProperties)
+grid* build_cartesian_grid(double lb_x, double ub_x, double lb_y, double ub_y, int N)
 {
   grid* cartesian_grid;
   cartesian_grid = (grid*) malloc(sizeof(grid));
-  cartesian_grid->gProperties = gProperties;        // Grid property object
-  cartesian_grid->grid_nodes_x = uniform_partition(gProperties.lb_x, gProperties.ub_x, gProperties.N);  // Partition in x direction
-  cartesian_grid->grid_nodes_y = uniform_partition(gProperties.lb_y, gProperties.ub_y, gProperties.N);  // Partition in y direction
+  cartesian_grid->N = N;
+  cartesian_grid->lb_x = lb_x;
+  cartesian_grid->ub_x = ub_x;
+  cartesian_grid->lb_y = lb_y;
+  cartesian_grid->ub_y = ub_y;
+  cartesian_grid->grid_nodes_x = uniform_partition(lb_x, ub_x, N);  // Partition in x direction
+  cartesian_grid->grid_nodes_y = uniform_partition(lb_y, ub_y, N);  // Partition in y direction
   return cartesian_grid;
 }

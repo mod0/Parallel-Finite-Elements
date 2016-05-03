@@ -18,19 +18,12 @@ int main(int argc, char** argv)
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
   int N = 100;        // The number of grid segments
-
-  grid_prop gProperties;
-  gProperties.lb_x = lb_x;
-  gProperties.lb_y = lb_y;
-  gProperties.ub_x = ub_x;
-  gProperties.ub_y = ub_y;
-  gProperties.N = N;
-
+  int overlap = 1;    // Amount of overlap in each direction
   // Create a grid with the grid properties object.
-  grid* cartesian_grid = build_cartesian_grid(gProperties);
+  grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);
 
   // Create a domain
-  domain* cartesian_domain = build_cartesian_domain(cartesian_grid);
+  domain* cartesian_domain = build_cartesian_domain(cartesian_grid, overlap);
 
   return 0;
 }

@@ -2,7 +2,6 @@
 #define __DOMAIN_H__
 
 #include "grid.h"
-#include "elements.h"
 
 // Information about domains and subdomains
 
@@ -20,9 +19,6 @@
 //  13  14  15  16  17  18  19  20  21  22  23  24
 //   1   2   3   4   5   6   7   8   9  10  11  12
 
-// Direction specifier for numbering vertices
-typedef enum {dirx, diry} vertex_numbering_dir;
-
 // Vertex object
 typedef struct
 {
@@ -31,12 +27,10 @@ typedef struct
   double y;                 // The y location
 } vertex;
 
-// Direction specifier for grid partition
-typedef enum {dirx, diry, dirxy} grid_partition_direction;
-
 // Subdomain object
-typedef struct
+typedef struct subdomain
 {
+  int subdomain_index;  //
   grid* cartesian_grid; // Global grid
   int dimX;             // May include overlap if there are overlapping subdomains
   int dimY;             // May include overlap if there are overlapping subdomains
@@ -45,16 +39,13 @@ typedef struct
   int bottom_left_y;    // Bottom left corner in global grid - y
   int top_right_x;      // Top right corner in global grid - x
   int top_right_y;      // Top right corner in global grid - y
-  subdomain* left;      // Pointer to left subdomain
-  subdomain* right;     // Pointer to right subdomain
-  subdomain* top;       // Pointer to top subdomain
-  subdomain* bottom;    // Pointer to bottom subdomain
+  struct subdomain* left;      // Pointer to left subdomain
+  struct subdomain* right;     // Pointer to right subdomain
   double* ghost_subdomain_left;   // Ghost cells into which neighboring threads will write info
   double* ghost_subdomain_right;  // Ghost cells into which neighboring threads will write info
-  double* ghost_subdomain_top;    // Ghost cells into which neighboring threads will write info
-  double* ghost_subdomain_bottom; // Ghost cells into which neighboring threads will write info
   double* subdomain_solution;     // Solution in the subdomain in the global grid vertex order
   vertex* subdomain_vertices;     // Vertices belonging to the subdomain in the global grid vertex order
+  int* elements;                  // List of Elements Indices
 } subdomain;
 
 // Domain object
@@ -62,13 +53,11 @@ typedef struct
 {
   grid* cartesian_grid;
   int subdomain_count_x;            // Subdomains in X direction
-  int subdomain_count_y;            // Subdomains in Y direction
-  subdomain* subdomains;            // List of all subdomains
-  vertex_numbering_dir direction;   // Direction in which grid vertices be numbered
+  subdomain** subdomains;            // List of all subdomains
 } domain;
 
 // Create a domain with as many number of
-domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x, int subdomain_count_y, vertex_numbering_dir direction);
+domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x);
 
 // Create subdomains and add them to the domain object
 int build_subdomains_in_domain(domain* cartesian_domain, int overlap);
