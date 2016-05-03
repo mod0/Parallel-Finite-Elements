@@ -37,12 +37,14 @@ typedef enum {dirx, diry, dirxy} grid_partition_direction;
 // Subdomain object
 typedef struct
 {
-  grid* region;
+  grid* cartesian_grid; // Global grid
   int dimX;             // May include overlap if there are overlapping subdomains
   int dimY;             // May include overlap if there are overlapping subdomains
   int overlap;          // Number of overlapping nodes with adjacent subdomains
   int bottom_left_x;    // Bottom left corner in global grid - x
   int bottom_left_y;    // Bottom left corner in global grid - y
+  int top_right_x;      // Top right corner in global grid - x
+  int top_right_y;      // Top right corner in global grid - y
   subdomain* left;      // Pointer to left subdomain
   subdomain* right;     // Pointer to right subdomain
   subdomain* top;       // Pointer to top subdomain
@@ -58,11 +60,17 @@ typedef struct
 // Domain object
 typedef struct
 {
-  grid* region;
+  grid* cartesian_grid;
   int subdomain_count_x;            // Subdomains in X direction
   int subdomain_count_y;            // Subdomains in Y direction
   subdomain* subdomains;            // List of all subdomains
   vertex_numbering_dir direction;   // Direction in which grid vertices be numbered
 } domain;
+
+// Create a domain with as many number of
+domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x, int subdomain_count_y, vertex_numbering_dir direction);
+
+// Create subdomains and add them to the domain object
+int build_subdomains_in_domain(domain* cartesian_domain, int overlap);
 
 #endif

@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "grid.h"
+#include "domain.h"
 
 int main(int argc, char** argv)
 {
@@ -28,7 +29,8 @@ int main(int argc, char** argv)
   // Create a grid with the grid properties object.
   grid* cartesian_grid = build_cartesian_grid(gProperties);
 
-
+  // Create a domain
+  domain* cartesian_domain = build_cartesian_domain(cartesian_grid);
 
   return 0;
 }
