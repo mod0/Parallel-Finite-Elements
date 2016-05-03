@@ -59,9 +59,9 @@ typedef struct
 typedef struct
 {
   grid* region;
-  int subdomain_count_x;
-  int subdomain_count_y;
-  subdomain* subdomains;
+  int subdomain_count_x;            // Subdomains in X direction
+  int subdomain_count_y;            // Subdomains in Y direction
+  subdomain* subdomains;            // List of all subdomains
   vertex_numbering_dir direction;   // Direction in which grid vertices be numbered
 } domain;
 
