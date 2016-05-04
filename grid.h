@@ -4,7 +4,7 @@
 // Describes the cartesian grid used in the problem
 typedef struct
 {
-  int N;
+  int N;                            // Number of segments along each direction
   double lb_x;
   double ub_x;
   double lb_y;

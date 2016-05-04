@@ -27,9 +27,6 @@ typedef struct
   double y;                 // The y location
 } vertex;
 
-vertex* _vertices;          // Array of all vertexes in the domain
-int** _subdomain_vertex_map; // Map of subdomain to vertices, gives the local vertex order for assembly
-
 // Subdomain object
 typedef struct subdomain
 {
@@ -57,6 +54,8 @@ typedef struct
   grid* cartesian_grid;              // Reference to the grid object
   int subdomain_count_x;             // Subdomains in X direction
   subdomain** subdomains;            // List of all subdomains
+  vertex** vertices;                 // Array of all vertexes in the domain
+  int** subdomain_vertex_map;        // Map of subdomain to vertices, gives the local vertex order for assembly
 } domain;
 
 // Create a domain with as many number of
@@ -68,5 +67,7 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap);
 // Create vertices in domain
 int create_vertices_for_domain(domain* cartesian_domain);
 
+// Create vertex subdomain mapping
+int create_vertex_subdomain_mapping(domain* cartesian_domain, int subdomain_index);
 
 #endif
