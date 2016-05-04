@@ -13,6 +13,8 @@ typedef struct
 
 void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero);
 
+void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands);
+
 void sparse_matrix_vector_multiply(sparse_matrix* m, vector* x, vector* w);
 
 double sparse_matrix_frobenius_norm(sparse_matrix* m);

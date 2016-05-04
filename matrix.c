@@ -15,6 +15,47 @@ void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero) {
 }
 
 
+static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
+    int bandOffset = m->size - band->size;
+
+    int i;
+    for(i = 0; i < band->size; i++) {
+        double val = band->elements[i];
+
+        m->rows[&elementIdx] = i;
+        m->cols[&elementIdx] = i + bandOffset;
+        m->elements[&elementIdx] = val;
+
+        (*elementIdx)++;
+
+        if (bandOffset != 0) {
+            m->rows[&elementIdx] = i + bandOffset;
+            m->cols[&elementIdx] = i;
+            m->elements[&elementIdx] = val;
+
+            (*elementIdx)++;
+        }
+    }
+}
+
+
+void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands) {
+    m->size = size;
+    int i, j;
+    int numNonzero = 0;
+    for (i = 0; i < numBands; i++) {
+        int bandLength = bands[i].size;
+        numNonzero += (bandLength == size ? 1 : 2) * bandLength;
+    }
+    vector_init(&m->elements, numNonzero);
+
+    int curIdx = 0;
+    for (i = 0; i < numBands; i++) {
+        fill_band(m, bands[i], &curIdx);
+    }
+}
+
+
 static void sparse_matrix_array_multiply(sparse_matrix* m, double* x, double* w) {
     int i;
     int j;
