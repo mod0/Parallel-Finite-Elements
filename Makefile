@@ -7,4 +7,4 @@ all: $(OBJS)
 	echo "Making all objects"
 
 clean:
-	rm -rf *.o
+	rm -rf *.o *.out
