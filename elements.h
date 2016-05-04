@@ -10,9 +10,7 @@ typedef struct
 {
   int id;
   grid* cartesian_grid;
-  vertex* grid_vertex_1;
-  vertex* grid_vertex_2;
-  vertex* grid_vertex_3;
+  vertex* grid_vertex[3];
 } triangular_element;
 
 // Create a global array of elements
