@@ -1,7 +1,7 @@
 
 OBJS = grid.o main.o fe.o domain.o elements.o error.o
 CC = gcc
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall 
 
 all: $(OBJS)
 	echo "Making all objects"
