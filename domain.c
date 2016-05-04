@@ -1,5 +1,6 @@
 #include "grid.h"
 #include "domain.h"
+#include <string.h>
 #include <stdlib.h>
 
 // Convention in ids etc
@@ -8,11 +9,19 @@
 // Create one big domain
 domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
 {
+  int i;
   domain* cartesian_domain;
-
+  #define CGN (cartesian_grid->N + 1)
   cartesian_domain = (domain*) calloc(1, sizeof(cartesian_domain));
   cartesian_domain->cartesian_grid = cartesian_grid;
   cartesian_domain->subdomain_count_x = subdomain_count_x;
+  cartesian_domain->subdomain_vertex_map = (int**) calloc(subdomain_count_x, sizeof(int*));
+  #define CDM (cartesian_domain->subdomain_vertex_map)
+  for(i = 0 i < subdomain_count_x; i++)
+  {
+    CDM[i] = (int*) calloc(CGN*CGN, sizeof(int));
+    memset(CDM[i], -1, CGN*CGN);
+  }
   return cartesian_domain;
 }
 
@@ -24,50 +33,62 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
   subdomain* cartesian_subdomain;
 
   subdomain_count_x = cartesian_domain->subdomain_count_x;
+  cartesian_domain->subdomains = (subdomain*) calloc(subdomain_count_x, sizeof(subdomain));
 
-  cartesian_domain->subdomains = (subdomain**) calloc(subdomain_count_x, sizeof(subdomain*));
-
-  #define CDN (cartesian_domain->N + 1)
-  #define PROC (subdomain_count_x)
+  #define CG (cartesian_domain->cartesian_grid)
+  #define CDN (cartesian_domain->cartesian_grid->N + 1)
+  #define CSD (cartesian_domain->subdomains)
+  #define CSDN (cartesian_domain->subdomain_count_x)
 
   for(i = 0; i < subdomain_count_x; i++)
   {
-    cartesian_subdomain = (subdomain*) calloc(1, sizeof(subdomain));
-    cartesian_subdomain->id = i + 1;                                                                                      // Start with 0 go to p-1
-    cartesian_subdomain->cartesian_grid = cartesian_domain->cartesian_grid;                                               // Global grid
-    cartesian_subdomain->overlap = overlap;                                                                               // Number of overlapping nodes with adjacent subdomains
+    CSD[i].id = i;                                                                                      // Start with 0 go to p-1
+    CSD[i].cartesian_grid = CG;                                                                             // Global grid
+    CSD[i].overlap = overlap;                                                                               // Number of overlapping nodes with adjacent subdomains
 
     if(i == 0)
     {
-      cartesian_subdomain->bottom_left_x = 1;                                                                             // Bottom left corner in global grid - x
-      cartesian_subdomain->bottom_left_y = 1;                                                                             // Bottom left corner in global grid - y
-      cartesian_subdomain->top_right_x = CDN/PROC + overlap;                                                              // Bottom left corner in global grid - x
-      cartesian_subdomain->top_right_y = CDN;                                                                               // Bottom left corner in global grid - y
+      CSD[i].bottom_left_x = 0;                                                                             // Bottom left corner in global grid - x
+      CSD[i].bottom_left_y = 0;                                                                             // Bottom left corner in global grid - y
+      CSD[i].top_right_x = CDN/CSDN + overlap - 1;                                                              // Bottom left corner in global grid - x
+      CSD[i].top_right_y = CDN - 1;                                                                               // Bottom left corner in global grid - y
     }
     else if(i == subdomain_count_x - 1)
     {
-      cartesian_subdomain->bottom_left_x = CDN - CDN/PROC + 1 - overlap;                                                  // Bottom left corner in global grid - x
-      cartesian_subdomain->bottom_left_y = 1;                                                                             // Bottom left corner in global grid - y
-      cartesian_subdomain->top_right_x = CDN;                                                                               // Bottom left corner in global grid - x
-      cartesian_subdomain->top_right_y = CDN;                                                                               // Bottom left corner in global grid - y
-      cartesian_subdomain->left = cartesian_domain->subdomains[i - 1];                                                    // Store the left subdomain
-      cartesian_domain->subdomains[i-1]->right = cartesian_subdomain;                                                     // Store the right subdomain
+      CSD[i].bottom_left_x = CDN - CDN/CSDN - overlap;                                                  // Bottom left corner in global grid - x
+      CSD[i].bottom_left_y = 0;                                                                             // Bottom left corner in global grid - y
+      CSD[i].top_right_x = CDN - 1;                                                                               // Bottom left corner in global grid - x
+      CSD[i].top_right_y = CDN - 1;                                                                               // Bottom left corner in global grid - y
     }
     else
     {
-      cartesian_subdomain->bottom_left_x = (CDN/PROC) * i  + 1 - overlap;                                                 // Bottom left corner in global grid - x
-      cartesian_subdomain->bottom_left_y = 1;                                                                             // Bottom left corner in global grid - y
-      cartesian_subdomain->top_right_x = (CDN/PROC) * (i + 1) + overlap;                                                  // Bottom left corner in global grid - x
-      cartesian_subdomain->top_right_y = CDN;                                                                               // Bottom left corner in global grid - y
-      cartesian_subdomain->left = cartesian_domain->subdomains[i - 1];                                                    // Store the left subdomain
-      cartesian_domain->subdomains[i-1]->right = cartesian_subdomain;                                                     // Store the right subdomain
+      CSD[i].bottom_left_x = (CDN/CSDN) * i  - overlap;                                                 // Bottom left corner in global grid - x
+      CSD[i].bottom_left_y = 0;                                                                             // Bottom left corner in global grid - y
+      CSD[i].top_right_x = (CDN/CSDN) * (i + 1) + overlap - 1;                                                  // Bottom left corner in global grid - x
+      CSD[i].top_right_y = CDN - 1;                                                                               // Bottom left corner in global grid - y
     }
 
-    cartesian_domain->subdomains[i] = cartesian_subdomain;
+    CSD[i].dimX = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;        // May include overlap if there are overlapping subdomains
+    CSD[i].dimY = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;        // May include overlap if there are overlapping subdomains
+
+    CSD[i].subdomain_solution = (double*) calloc(dimX*dimY, sizeof(double));  // Solution in the subdomain in the global grid vertex order
+    CSD[i].subdomain_vertices = (vertex*) calloc(dimX*dimY, sizeof(vertex*)); // Vertices belonging to the subdomain in the global grid vertex order
+
+    if(i != 0)
+    {
+      CSD[i].ghost_subdomain_left = (double*) calloc(2*overlap*dimY, sizeof(double));  // Ghost cells into which neighboring threads will write info
+    }
+
+    if(i != CSDN - 1)
+    {
+      CSD[i].ghost_subdomain_right = (double*) calloc(2*overlap*dimY, sizeof(double)); // Ghost cells into which neighboring threads will write info
+    }
   }
 
   #undef CDN
-  #undef PROC
+  #undef CSD
+  #undef CSDN
+  #undef CG
 
   return 0;
 }
@@ -81,34 +102,44 @@ int create_vertices_for_domain(domain* cartesian_domain)
   #define CG (cartesian_domain->cartesian_grid)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
 
-  cartesian_domain->vertices = (vertices**) calloc(CDN*CDN, sizeof(vertex*));
+  cartesian_domain->vertices = (vertex*) calloc(CDN*CDN, sizeof(vertex));
 
-  for(i = 1; i <= CDN; i++)                             // Go one row after another
+  #define CDV (cartesian_domain->vertices)
+
+  for(i = 0; i < CDN; i++)                             // Go one row after another
   {
-    for(j = 1; j <= CDN; j++)                           // Loop over columns
+    for(j = 0; j < CDN; j++)                           // Loop over columns
     {
-      grid_vertex = (vertex*) calloc(1, sizeof(vertex));
-      grid_vertex->global_vertex_id = (i - 1)*N + j;
-      grid_vertex->x = CG->grid_nodes_x[j-1];
-      grid_vertex->y = CG->grid_nodes_y[i-1];
-      cartesian_domain->vertices[(i-1)*CDN + (j-1)] = grid_vertex;
+      CDV[i].id = i * CDN + j;
+      CDV[i].x = CG->grid_nodes_x[j];
+      CDV[i].y = CG->grid_nodes_y[i];
     }
   }
   #undef CDN
   #undef CG
+  #undef CDV
 }
 
 // Go over the list of vertices, add them to the subdomain vertex list.
-int create_vertex_subdomain_mapping(domain* cartesian_domain, int subdomain_index)
+int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
 {
-  subdomain* cartesian_subdomain;
+  int i, j, count;
+  #define CSD (cartesian_domain->subdomains)
+  #define CDV (cartesian_domain->vertices)
+  #define CDM (cartesian_domain->subdomain_vertex_map)
 
-  cartesian_subdomain = cartesian_domain->subdomains[subdomain_index];
-  cartesian_subdomain->dimX = cartesian_subdomain->top_right_x - cartesian_subdomain->bottom_left_x + 1;                                                // May include overlap if there are overlapping subdomains
-  cartesian_subdomain->dimY = cartesian_subdomain->top_right_x - cartesian_subdomain->bottom_left_x + 1;                                                // May include overlap if there are overlapping subdomains
-  cartesian_subdomain->ghost_subdomain_left;                                // Ghost cells into which neighboring threads will write info
-  cartesian_subdomain->ghost_subdomain_right;                               // Ghost cells into which neighboring threads will write info
-  cartesian_subdomain->subdomain_solution;                                  // Solution in the subdomain in the global grid vertex order
-  cartesian_subdomain->subdomain_vertices;                                  // Vertices belonging to the subdomain in the global grid vertex order
+  count = 0;
+  for(i = CSD[idx].bottom_left_y; i <= CSD[idx].top_right_y; i++)
+  {
+    for(j = CSD[idx].bottom_left_x; i <= CSD[idx].top_right_x; j++)
+    {
+      CSD[idx].vertices[count] = &(CDV[i * CDN + j]);
+      CDM[idx][i * CDN + j] = count;
+      count++;
+    }
+  }
 
+  #undef CSD
+  #undef CDV
+  return 0;
 }

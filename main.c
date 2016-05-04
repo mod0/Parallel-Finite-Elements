@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);
 
   // Create a domain
-  domain* cartesian_domain = build_cartesian_domain(cartesian_grid, overlap);
+  // domain* cartesian_domain = build_cartesian_domain(cartesian_grid, overlap);
 
   return 0;
 }
