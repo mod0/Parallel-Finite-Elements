@@ -75,21 +75,17 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
     CSD[i].dimX = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;                                    // May include overlap if there are overlapping subdomains
     CSD[i].dimY = CSD[i].top_right_y - CSD[i].bottom_left_y + 1;                                    // May include overlap if there are overlapping subdomains
 
-    CSD[i].subdomain_solution.size = CSD[i].dimX * CSD[i].dimY;                                     // Size of the solution vector
-    CSD[i].subdomain_solution.elements = calloc(CSD[i].dimX*CSD[i].dimY, sizeof(double));           // Solution in the subdomain in the global grid vertex order
-
     CSD[i].subdomain_vertices = calloc(CSD[i].dimX*CSD[i].dimY, sizeof(vertex*));                   // Vertices belonging to the subdomain in the global grid vertex order
 
+    vector_init(&(CSD[i].subdomain_solution), CSD[i].dimX*CSD[i].dimY);                             // Solution in the subdomain in the global grid vertex order
     if(i != 0)
     {
-      CSD[i].ghost_subdomain_left.size = 2 * overlap * CSD[i].dimY;
-      CSD[i].ghost_subdomain_left.elements = calloc(2*overlap*CSD[i].dimY, sizeof(double));         // Ghost cells into which neighboring threads will write info
+      vector_init(&(CSD[i].ghost_subdomain_left), 2*overlap*CSD[i].dimY);                            // Ghost cells into which neighboring threads will write info
     }
 
     if(i != CSDN - 1)
     {
-      CSD[i].ghost_subdomain_right.size = 2 * overlap * CSD[i].dimY;
-      CSD[i].ghost_subdomain_right.elements = calloc(2*overlap*CSD[i].dimY, sizeof(double));        // Ghost cells into which neighboring threads will write info
+      vector_init(&(CSD[i].ghost_subdomain_right), 2*overlap*CSD[i].dimY);                            // Ghost cells into which neighboring threads will write info
     }
   }
 
@@ -141,7 +137,7 @@ int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
   count = 0;
   for(i = CSD[idx].bottom_left_y; i <= CSD[idx].top_right_y; i++)
   {
-    for(j = CSD[idx].bottom_left_x; i <= CSD[idx].top_right_x; j++)
+    for(j = CSD[idx].bottom_left_x; j <= CSD[idx].top_right_x; j++)
     {
       CSD[idx].subdomain_vertices[count] = &(CDV[i * CDN + j]);
       CDM[idx][i * CDN + j] = count;

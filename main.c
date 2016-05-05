@@ -53,8 +53,5 @@ int main(int argc, char** argv)
     add_triangular_elements_to_subdomains(cartesian_domain, i);
   }
 
-
-
-
   return 0;
 }
