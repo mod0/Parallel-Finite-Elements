@@ -6,7 +6,7 @@
 #include "matrix.h"
 #include "error.h"
 
-
+// Initializes the members of a sparse_matrix struct
 void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero) {
     m->size = size;
     vector_init(&m->elements, numNonzero);
@@ -14,7 +14,8 @@ void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero) {
     m->cols = (int*) calloc(numNonzero, sizeof(int));
 }
 
-
+// Helper function that writes a band to a sparse_matrix.  If the band is not on
+// the main diagonal, it will write it twice, since the matrix is symmetric
 static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
     int bandOffset = m->size - band->size;
 
@@ -28,7 +29,7 @@ static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
 
         (*elementIdx)++;
 
-        if (bandOffset != 0) {
+        if (bandOffset != 0) { // Write the band in the lower-left if the band is not on the diagonal
             m->rows[*elementIdx] = i + bandOffset;
             m->cols[*elementIdx] = i;
             m->elements.elements[*elementIdx] = val;
@@ -149,6 +150,7 @@ static void free_dense_matrix(double **m, int nrl, int nrh, int ncl, int nch) {
     free((char*) (m + nrl - 1));
 }
 
+// Restarted GMRES adapted from http://people.sc.fsu.edu/~jburkardt/c_src/mgmres/mgmres.html
 void mgmres(sparse_matrix* m, vector* x, vector* rhs, int itr_max, int mr, double tol_abs, double tol_rel) {
     double av;
     vector c;
