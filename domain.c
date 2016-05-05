@@ -73,7 +73,7 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
     }
 
     CSD[i].dimX = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;                                    // May include overlap if there are overlapping subdomains
-    CSD[i].dimY = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;                                    // May include overlap if there are overlapping subdomains
+    CSD[i].dimY = CSD[i].top_right_y - CSD[i].bottom_left_y + 1;                                    // May include overlap if there are overlapping subdomains
 
     CSD[i].subdomain_solution.size = CSD[i].dimX * CSD[i].dimY;                                     // Size of the solution vector
     CSD[i].subdomain_solution.elements = calloc(CSD[i].dimX*CSD[i].dimY, sizeof(double)); // Solution in the subdomain in the global grid vertex order

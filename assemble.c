@@ -12,7 +12,7 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
 {
   int i, k, l, t_idx, Delta;
 	int local_i, local_j;
-  int global_vertice_idx, global_element_idx,Nv, Nx, Ny, Nt;
+  int global_element_idx,Nv, Nx, Ny, Nt;
   vector bands[4];
   double Ktilde[3][3] = {{1.0, -0.5, -0.5},
                          {-0.5, 0.5, 0.0},
@@ -85,7 +85,7 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
   boundary_op_K(bands, F, D, subdomain_idx);
   sparse_symmetric_banded_init(K, Nv, bands, 4);
 
-  for (int i = 0; i < 4; i++)
+  for (i = 0; i < 4; i++)
   {
     vector_free(&bands[i]);
   }
@@ -173,19 +173,17 @@ double bc_choice(domain* D,double u0, int subdomain_idx,
     }
 }
 
-void boundary_op_KF(vector* bands, double* F, domain* D,
+void boundary_op_KF(vector* bands, vector* F, domain* D,
                           int subdomain_idx)
 {
   int i, j, band_id;
-  int Nx, Ny, Nv, Nt;
+  int Nx, Ny, Nv;
   double u0 = 1;
   double newF;
-  double uhat[Nx*Ny];
 
   Nx = D->subdomains[subdomain_idx].dimX;
   Ny = D->subdomains[subdomain_idx].dimY;
   Nv = Nx* Ny;
-  Nt = (Nx-1)* (Ny -1) *2;
   int vector_sizes[4] = {Nv, Nv-1, Nv-Nx, Nv-Nx-1};
   int local_boundary_element_idx;
 
@@ -195,7 +193,7 @@ void boundary_op_KF(vector* bands, double* F, domain* D,
     local_boundary_element_idx = i;
     bands[0].elements[local_boundary_element_idx] = 1;
     newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, bottom);
-    F[local_boundary_element_idx] = newF;
+    F->elements[local_boundary_element_idx] = newF;
     for (band_id = 1; band_id < 4; band_id++)
     {
         if (local_boundary_element_idx < vector_sizes[band_id])
@@ -211,8 +209,8 @@ void boundary_op_KF(vector* bands, double* F, domain* D,
     local_boundary_element_idx = (Ny - 1) * Nx + i;
     bands[0].elements[local_boundary_element_idx] = 1;
     newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, top);
-    F[local_boundary_element_idx] = newF;
-    for (int band_id = 1; band_id < 4; band_id++)
+    F->elements[local_boundary_element_idx] = newF;
+    for (band_id = 1; band_id < 4; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
       {
@@ -227,7 +225,7 @@ void boundary_op_KF(vector* bands, double* F, domain* D,
     local_boundary_element_idx = (j+1)*Nx -1 ;
     bands[0].elements[local_boundary_element_idx] = 1;
     newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, right);
-    F[local_boundary_element_idx] = newF;
+    F->elements[local_boundary_element_idx] = newF;
     for(band_id=1; band_id < 4; band_id++)
     {
       if (local_boundary_element_idx<vector_sizes[band_id])
@@ -242,7 +240,7 @@ void boundary_op_KF(vector* bands, double* F, domain* D,
     local_boundary_element_idx = j * Nx;
     bands[0].elements[local_boundary_element_idx] = 1;
     newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, left);
-    F[local_boundary_element_idx] = newF;
+    F->elements[local_boundary_element_idx] = newF;
     for (band_id = 1; band_id < 4; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
@@ -254,20 +252,16 @@ void boundary_op_KF(vector* bands, double* F, domain* D,
 }
 
 
-void boundary_op_K(vector* bands, double* F, domain* D,
+void boundary_op_K(vector* bands, vector* F, domain* D,
                     int subdomain_idx)
 {
   int i, j, band_id;
-  int Nx, Ny, Nv, Nt;
-  double u0 = 1;
-  double newF;
-  double uhat[Nx*Ny];
+  int Nx, Ny, Nv;
 
   Nx = D->subdomains[subdomain_idx].dimX;
   Ny = D->subdomains[subdomain_idx].dimY;
   int local_boundary_element_idx;
   Nv = Nx* Ny;
-  Nt = (Nx-1)* (Ny -1) *2;
   int vector_sizes[4] = {Nv,Nv-1,Nv-Nx, Nv-Nx-1};
 
 
