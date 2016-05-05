@@ -306,7 +306,7 @@ typedef void (*PrinterFunction)(sparse_matrix*, int, int);
 #define PRINT_NUM_DIGITS 8
 
 static void printEllipsis(sparse_matrix* m, int row, int col) {
-	printf("%*s ", PRINT_NUM_DIGITS + 4, "|");
+	printf("%*s ", PRINT_NUM_DIGITS + 5, "|");
 }
 
 static void printElement(sparse_matrix* m, int row, int col) {
