@@ -17,7 +17,7 @@ domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
   cartesian_domain->subdomain_count_x = subdomain_count_x;
   cartesian_domain->subdomain_vertex_map = (int**) calloc(subdomain_count_x, sizeof(int*));
   #define CDM (cartesian_domain->subdomain_vertex_map)
-  for(i = 0 i < subdomain_count_x; i++)
+  for(i = 0; i < subdomain_count_x; i++)
   {
     CDM[i] = (int*) calloc(CGN*CGN, sizeof(int));
     memset(CDM[i], -1, CGN*CGN);
@@ -30,7 +30,6 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
 {
   int i;
   int subdomain_count_x;
-  subdomain* cartesian_subdomain;
 
   subdomain_count_x = cartesian_domain->subdomain_count_x;
   cartesian_domain->subdomains = (subdomain*) calloc(subdomain_count_x, sizeof(subdomain));
@@ -71,17 +70,17 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
     CSD[i].dimX = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;        // May include overlap if there are overlapping subdomains
     CSD[i].dimY = CSD[i].top_right_x - CSD[i].bottom_left_x + 1;        // May include overlap if there are overlapping subdomains
 
-    CSD[i].subdomain_solution = (double*) calloc(dimX*dimY, sizeof(double));  // Solution in the subdomain in the global grid vertex order
-    CSD[i].subdomain_vertices = (vertex*) calloc(dimX*dimY, sizeof(vertex*)); // Vertices belonging to the subdomain in the global grid vertex order
+    CSD[i].subdomain_solution = (double*) calloc(CSD[i].dimX*CSD[i].dimY, sizeof(double));  // Solution in the subdomain in the global grid vertex order
+    CSD[i].subdomain_vertices = (vertex**) calloc(CSD[i].dimX*CSD[i].dimY, sizeof(vertex*)); // Vertices belonging to the subdomain in the global grid vertex order
 
     if(i != 0)
     {
-      CSD[i].ghost_subdomain_left = (double*) calloc(2*overlap*dimY, sizeof(double));  // Ghost cells into which neighboring threads will write info
+      CSD[i].ghost_subdomain_left = (double*) calloc(2*overlap*CSD[i].dimY, sizeof(double));  // Ghost cells into which neighboring threads will write info
     }
 
     if(i != CSDN - 1)
     {
-      CSD[i].ghost_subdomain_right = (double*) calloc(2*overlap*dimY, sizeof(double)); // Ghost cells into which neighboring threads will write info
+      CSD[i].ghost_subdomain_right = (double*) calloc(2*overlap*CSD[i].dimY, sizeof(double)); // Ghost cells into which neighboring threads will write info
     }
   }
 
@@ -97,7 +96,6 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
 int create_vertices_for_domain(domain* cartesian_domain)
 {
   int i, j;
-  vertex* grid_vertex;
 
   #define CG (cartesian_domain->cartesian_grid)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
@@ -118,6 +116,8 @@ int create_vertices_for_domain(domain* cartesian_domain)
   #undef CDN
   #undef CG
   #undef CDV
+
+  return 0;
 }
 
 // Go over the list of vertices, add them to the subdomain vertex list.
@@ -127,13 +127,14 @@ int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
   #define CSD (cartesian_domain->subdomains)
   #define CDV (cartesian_domain->vertices)
   #define CDM (cartesian_domain->subdomain_vertex_map)
+  #define CDN (cartesian_domain->cartesian_grid->N + 1)
 
   count = 0;
   for(i = CSD[idx].bottom_left_y; i <= CSD[idx].top_right_y; i++)
   {
     for(j = CSD[idx].bottom_left_x; i <= CSD[idx].top_right_x; j++)
     {
-      CSD[idx].vertices[count] = &(CDV[i * CDN + j]);
+      CSD[idx].subdomain_vertices[count] = &(CDV[i * CDN + j]);
       CDM[idx][i * CDN + j] = count;
       count++;
     }
@@ -141,5 +142,7 @@ int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
 
   #undef CSD
   #undef CDV
+  #undef CDN
+  #undef CDM
   return 0;
 }

@@ -9,13 +9,17 @@
 typedef struct
 {
   int id;
-  grid* cartesian_grid;
+  domain* cartesian_domain;
   vertex* grid_vertex[3];
 } triangular_element;
 
 // Create a global array of elements
 triangular_element* _triangular_elements;
 
-int create_triangular_elements_in_cartesian_domain();
+// Creates elements and stores it in the triangular elements list
+int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain);
+
+// Add element indices to subdomains
+int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx);
 
 #endif
