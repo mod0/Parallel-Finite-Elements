@@ -21,6 +21,8 @@ void vector_scalar_multiply(double scalar, vector* v, vector* product);
 
 double vector_2_norm(vector* v);
 
+void vector_print(vector* v);
+
 void vector_free(vector* v);
 
 #endif

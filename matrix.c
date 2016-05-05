@@ -22,16 +22,16 @@ static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
     for(i = 0; i < band->size; i++) {
         double val = band->elements[i];
 
-        m->rows[&elementIdx] = i;
-        m->cols[&elementIdx] = i + bandOffset;
-        m->elements[&elementIdx] = val;
+        m->rows[*elementIdx] = i;
+        m->cols[*elementIdx] = i + bandOffset;
+        m->elements.elements[*elementIdx] = val;
 
         (*elementIdx)++;
 
         if (bandOffset != 0) {
-            m->rows[&elementIdx] = i + bandOffset;
-            m->cols[&elementIdx] = i;
-            m->elements[&elementIdx] = val;
+            m->rows[*elementIdx] = i + bandOffset;
+            m->cols[*elementIdx] = i;
+            m->elements.elements[*elementIdx] = val;
 
             (*elementIdx)++;
         }
@@ -41,7 +41,7 @@ static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
 
 void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands) {
     m->size = size;
-    int i, j;
+    int i;
     int numNonzero = 0;
     for (i = 0; i < numBands; i++) {
         int bandLength = bands[i].size;
@@ -51,7 +51,7 @@ void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, 
 
     int curIdx = 0;
     for (i = 0; i < numBands; i++) {
-        fill_band(m, bands[i], &curIdx);
+        fill_band(m, &bands[i], &curIdx);
     }
 }
 

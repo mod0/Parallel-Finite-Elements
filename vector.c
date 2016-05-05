@@ -50,6 +50,15 @@ double vector_2_norm(vector* v) {
     return sqrt(ssq);
 }
 
+void vector_print(vector* v) {
+    int i;
+    printf("[");
+    for (i = 0; i < v->size; i++) {
+        printf("%f%s", v->elements[i], i == v->size - 1 ? "" : " ");
+    }
+    printf("]\n");
+}
+
 void vector_free(vector* v) {
     free(v->elements);
 }
