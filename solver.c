@@ -9,13 +9,24 @@
 int ellipticsolver(domain* cartesian_domain)
 {
   int i;
+  vector* F_array;
+  sparse_matrix* K_array;
 
   #define CSDN (cartesian_domain->subdomain_count_x)
   #define CSD (cartesian_domain->cartesian_subdomain)
 
-  // Assemble the K matrix
+  // Create an array of F vectors and K arrays
+  F_array = calloc(CSDN, sizeof(vector));
+  K_array = calloc(CSDN, sizeof(sparse_matrix));
 
-  // Assemble the load vector_init
+  for(i = 0 ; i < CSDN; i++)
+  {
+    // Assemble the K matrix
+    // Assemble the load vector_init
+    assemble_local_KF(K_array[i], F_array[i], cartesian_domain, i);
+
+    // Apply the boundary condition on K and F
+  }
 
   do
   {

@@ -13,7 +13,7 @@ double* uniform_partition(double lb, double ub, int N)
   h = (ub - lb)/N;
 
   // Allocate space for the parition
-  partition = (double*) calloc(N+1, sizeof(double));
+  partition = calloc(N+1, sizeof(double));
   for(i = 1, partition[0] = lb; i < N; i++)
   {
     partition[i] = partition[i - 1] + h;
@@ -32,7 +32,7 @@ grid* build_cartesian_grid(double lb_x, double ub_x, double lb_y, double ub_y, i
     error("The domain is not square.");
   }
 
-  cartesian_grid = (grid*) malloc(sizeof(grid));
+  cartesian_grid = calloc(1, sizeof(grid));
   cartesian_grid->N = N;
   cartesian_grid->lb_x = lb_x;
   cartesian_grid->ub_x = ub_x;

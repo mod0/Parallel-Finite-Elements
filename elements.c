@@ -16,7 +16,7 @@ int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain)
   #define CDV (cartesian_domain->vertices)
 
   nT = 2 * (CDN - 1) * (CDN - 1);
-  _triangular_elements = (triangular_element*) calloc(nT, sizeof(triangular_element));
+  _triangular_elements = calloc(nT, sizeof(triangular_element));
 
   for(i = 0; i < CDN - 1; i++)
   {
@@ -60,7 +60,7 @@ int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
 
   nT = 2 * (CSD[idx].dimX - 1) * (CSD[idx].dimY - 1);
-  CSD[idx].elements = (int*) calloc(nT, sizeof(int));
+  CSD[idx].elements = calloc(nT, sizeof(int));
 
   count = 0;
   for(i = CSD[idx].bottom_left_y; i < CSD[idx].top_right_y; i++)
