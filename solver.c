@@ -26,6 +26,7 @@ int ellipticsolver(domain* cartesian_domain)
     assemble_local_KF(K_array[i], F_array[i], cartesian_domain, i);
 
     // Apply the boundary condition on K and F
+    
   }
 
   do
