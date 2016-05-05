@@ -40,19 +40,29 @@ static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
 
 
 void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands) {
-    m->size = size;
     int i;
     int numNonzero = 0;
     for (i = 0; i < numBands; i++) {
         int bandLength = bands[i].size;
         numNonzero += (bandLength == size ? 1 : 2) * bandLength;
     }
-    vector_init(&m->elements, numNonzero);
+    sparse_matrix_init(m, size, numNonzero);
 
     int curIdx = 0;
     for (i = 0; i < numBands; i++) {
         fill_band(m, &bands[i], &curIdx);
     }
+}
+
+
+double sparse_matrix_get(sparse_matrix* m, int row, int col) {
+    int i;
+    for (i = 0; i < m->elements.size; i++) {
+        if (m->rows[i] == row && m->cols[i] == col) {
+            return m->elements.elements[i];
+        }
+    }
+    return 0;
 }
 
 
@@ -288,9 +298,69 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, int itr_max, int mr, doubl
     vector_free(&y);
     free_dense_matrix(v, 0, mr, 0, n - 1);
     free_dense_matrix(h, 0, mr, 0, mr - 1);
-
-    return;
 }
+
+typedef void (*PrinterFunction)(sparse_matrix*, int, int);
+#define PRINT_ELLIPSIS_THRESHOLD 8
+#define PRINT_NUM_DIGITS 8
+
+static void printEllipsis(sparse_matrix* m, int row, int col) {
+	printf("%*s ", PRINT_NUM_DIGITS + 4, "|");
+}
+
+static void printElement(sparse_matrix* m, int row, int col) {
+	printf("%+*e ", PRINT_NUM_DIGITS, sparse_matrix_get(m, row, col));
+}
+
+static void printRow(sparse_matrix* m, int row, PrinterFunction printer) {
+    int numCols = m->size;
+
+    if (numCols > PRINT_ELLIPSIS_THRESHOLD) {
+        int numBeginningCols = PRINT_ELLIPSIS_THRESHOLD / 2;
+        int numEndingCols = PRINT_ELLIPSIS_THRESHOLD - numBeginningCols - 1;
+        int c;
+        for (c = 0; c < numBeginningCols; c++) {
+            printer(m, row, c);
+        }
+
+        printf("… ");
+
+        for (c = numCols - numEndingCols; c < numCols; c++) {
+            printer(m, row, c);
+        }
+    } else {
+        int c;
+        for (c = 0; c < numCols; c++) {
+            printer(m, row, c);
+        }
+    }
+    printf("\n");
+}
+
+void sparse_matrix_print(sparse_matrix* m) {
+    int numRows = m->size;
+
+    if (numRows > PRINT_ELLIPSIS_THRESHOLD) {
+        int numBeginningRows = PRINT_ELLIPSIS_THRESHOLD / 2;
+        int numEndingRows = PRINT_ELLIPSIS_THRESHOLD - numBeginningRows - 1;
+        int r;
+        for (r = 0; r < numBeginningRows; r++) {
+            printRow(m, r, &printElement);
+        }
+
+        printRow(m, r, &printEllipsis);
+
+        for (r = numRows - numEndingRows; r < numRows; r++) {
+            printRow(m, r, &printElement);
+        }
+    } else {
+        int r;
+        for (r = 0; r < numRows; r++) {
+            printRow(m, r, &printElement);
+        }
+    }
+}
+
 
 void sparse_matrix_free(sparse_matrix* m) {
     vector_free(&m->elements);

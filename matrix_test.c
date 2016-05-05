@@ -3,7 +3,7 @@
 #include "vector.h"
 #include "matrix.h"
 
-void test01() {
+static void test_mgmres() {
 # define N 20
 # define NZ_NUM 3 * N - 2
 
@@ -131,6 +131,20 @@ void test01() {
 # undef NZ_NUM
 }
 
+void test_matrix_print() {
+    int n = 6;
+    vector v[2];
+    vector_init(&v[0], n); vector_init(&v[1], n - 2);
+    vector_fill(&v[0], 7); vector_fill(&v[1], -3);
+
+    sparse_matrix m;
+    sparse_symmetric_banded_init(&m, n, v, 2);
+
+    sparse_matrix_print(&m);
+    printf("Test\n");
+}
+
 int main() {
-    test01();
+    // test_mgmres();
+    test_matrix_print();
 }
