@@ -1,4 +1,3 @@
-#include <string.h>
 #include <stdlib.h>
 
 #include "grid.h"
@@ -11,7 +10,7 @@
 // Create one big domain
 domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
 {
-  int i;
+  int i,j;
   domain* cartesian_domain;
   #define CGN (cartesian_grid->N + 1)
   cartesian_domain = (domain*) calloc(1, sizeof(cartesian_domain));
@@ -22,7 +21,10 @@ domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
   for(i = 0; i < subdomain_count_x; i++)
   {
     CDM[i] = (int*) calloc(CGN*CGN, sizeof(int));
-    memset(CDM[i], -1, CGN*CGN);
+    for(j = 0; j < CGN*CGN; j++)
+    {
+      CDM[i][j] = -1;
+    }
   }
   return cartesian_domain;
 }
@@ -161,6 +163,7 @@ int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction)
   #define CSDN (cartesian_domain->subdomain_count_x)
 
   if(direction <= 0)
+  {
     if(idx > 0)  // copy left
     {
       count = 0;
