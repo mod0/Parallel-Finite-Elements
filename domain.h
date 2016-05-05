@@ -35,7 +35,7 @@ typedef struct subdomain
 } subdomain;
 
 // Domain object
-typedef struct
+typedef struct domain
 {
   grid* cartesian_grid;              // Reference to the grid object
   vertex* vertices;                  // Array of all vertexes in the domain

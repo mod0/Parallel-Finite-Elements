@@ -13,19 +13,22 @@ domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
   int i,j;
   domain* cartesian_domain;
   #define CGN (cartesian_grid->N + 1)
-  cartesian_domain = (domain*) calloc(1, sizeof(cartesian_domain));
+  cartesian_domain = calloc(1, sizeof(domain));
   cartesian_domain->cartesian_grid = cartesian_grid;
   cartesian_domain->subdomain_count_x = subdomain_count_x;
-  cartesian_domain->subdomain_vertex_map = (int**) calloc(subdomain_count_x, sizeof(int*));
+  cartesian_domain->subdomain_vertex_map = (int**) calloc(2, sizeof(int*));
   #define CDM (cartesian_domain->subdomain_vertex_map)
   for(i = 0; i < subdomain_count_x; i++)
   {
-    CDM[i] = (int*) calloc(CGN*CGN, sizeof(int));
+    cartesian_domain->subdomain_vertex_map[i] = (int*) calloc(CGN*CGN, sizeof(int));
     for(j = 0; j < CGN*CGN; j++)
     {
       CDM[i][j] = -1;
     }
   }
+  #undef CGN
+  #undef CDM
+
   return cartesian_domain;
 }
 
