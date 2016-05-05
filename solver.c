@@ -30,21 +30,22 @@ int ellipticsolver(domain* cartesian_domain)
 
   do
   {
-    for(i = 0 ; i < )
-    // Mark the subdomain as not converged
+    for(i = 0 ; i < ;)
+    {
+      // Mark the subdomain as not converged
 
-    // Solve each subdomain
+      // Solve each subdomain
 
-    // Send information left
+      // Send information left
 
-    // Smooth and compute the norm
+      // Smooth and compute the norm
 
-    // Check for tolerance and mark as converged if converged
+      // Check for tolerance and mark as converged if converged
 
-    // Send information right
+      // Send information right
 
-    // Write to file
-
+      // Write to file
+    }
   } while(!is_converged(cartesian_domain));
 
   #undef CSD
