@@ -2,6 +2,7 @@
 #define __DOMAIN_H__
 
 #include "grid.h"
+#include "vector.h"
 
 // Information about domains and subdomains
 
@@ -25,9 +26,9 @@ typedef struct subdomain
   int bottom_left_y;    // Bottom left corner in global grid - y
   int top_right_x;      // Top right corner in global grid - x
   int top_right_y;      // Top right corner in global grid - y
-  double* ghost_subdomain_left;   // Ghost cells into which neighboring threads will write info
-  double* ghost_subdomain_right;  // Ghost cells into which neighboring threads will write info
-  double* subdomain_solution;     // Solution in the subdomain in the global grid vertex order
+  vector ghost_subdomain_left;   // Ghost cells into which neighboring threads will write info
+  vector ghost_subdomain_right;  // Ghost cells into which neighboring threads will write info
+  vector subdomain_solution;     // Solution in the subdomain in the global grid vertex order
   vertex** subdomain_vertices;    // Vertices belonging to the subdomain in the global grid vertex order
   int* elements;                  // List of Elements Indices
 } subdomain;
@@ -53,5 +54,8 @@ int create_vertices_for_domain(domain* cartesian_domain);
 
 // Create vertex subdomain mapping
 int create_vertex_subdomain_mapping(domain* cartesian_domain, int subdomain_index);
+
+// Copy overlapping solution to adjacent subdomains
+int copy_ghost_overlap(domain* cartesian_domain, int idx);
 
 #endif
