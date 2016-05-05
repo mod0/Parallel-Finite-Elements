@@ -1,8 +1,9 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "grid.h"
 #include "domain.h"
 #include "vector.h"
-#include <string.h>
-#include <stdlib.h>
 
 // Convention in ids etc
 // Ids for vertices, triangles follow the matlab id convention - starting at 1
@@ -150,8 +151,8 @@ int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
   return 0;
 }
 
-// Copy the solution to the right and left subdomains
-int copy_ghost_overlap(domain* cartesian_domain, int idx)
+// Copy the solution to the right, left, or both subdomains
+int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction)
 {
   int i, j;
   int count;
@@ -159,26 +160,31 @@ int copy_ghost_overlap(domain* cartesian_domain, int idx)
   #define CSD (cartesian_domain->subdomains)
   #define CSDN (cartesian_domain->subdomain_count_x)
 
-  if(idx > 0)  // copy left
-  {
-    count = 0;
-    for(i = 0; i < CSD[idx].dimY; i++)
+  if(direction <= 0)
+    if(idx > 0)  // copy left
     {
-      for(j = 0; j < CSD[idx].overlap; j++)
+      count = 0;
+      for(i = 0; i < CSD[idx].dimY; i++)
       {
-        CSD[idx - 1].ghost_subdomain_right.elements[count++] = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
+        for(j = 0; j < CSD[idx].overlap; j++)
+        {
+          CSD[idx - 1].ghost_subdomain_right.elements[count++] = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
+        }
       }
     }
   }
 
-  if(idx < CSDN - 1) // copy right
+  if(direction >= 0)
   {
-    count = 0;
-    for(i = 0; i < CSD[idx].dimY; i++)
+    if(idx < CSDN - 1) // copy right
     {
-      for(j = CSD[idx].dimX - CSD[idx].overlap; j < CSD[idx].dimX; j++)
+      count = 0;
+      for(i = 0; i < CSD[idx].dimY; i++)
       {
-        CSD[idx + 1].ghost_subdomain_left.elements[count++] = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
+        for(j = CSD[idx].dimX - CSD[idx].overlap; j < CSD[idx].dimX; j++)
+        {
+          CSD[idx + 1].ghost_subdomain_left.elements[count++] = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
+        }
       }
     }
   }

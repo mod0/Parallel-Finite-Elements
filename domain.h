@@ -31,6 +31,7 @@ typedef struct subdomain
   vector subdomain_solution;     // Solution in the subdomain in the global grid vertex order
   vertex** subdomain_vertices;    // Vertices belonging to the subdomain in the global grid vertex order
   int* elements;                  // List of Elements Indices
+  int converged;                  // Boolean flag to check whether the subdomain has converged
 } subdomain;
 
 // Domain object
@@ -56,6 +57,6 @@ int create_vertices_for_domain(domain* cartesian_domain);
 int create_vertex_subdomain_mapping(domain* cartesian_domain, int subdomain_index);
 
 // Copy overlapping solution to adjacent subdomains
-int copy_ghost_overlap(domain* cartesian_domain, int idx);
+int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction);
 
 #endif

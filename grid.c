@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "grid.h"
 #include "error.h"
 
