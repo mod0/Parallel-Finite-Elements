@@ -23,7 +23,7 @@ double sparse_matrix_frobenius_norm(sparse_matrix* m);
 
 void mgmres(sparse_matrix* matrix, vector* x, vector* rhs, int itr_max, int mr, double tol_abs, double tol_rel);
 
-void sparse_matrix_print(sparse_matrix* m);
+void sparse_matrix_print(sparse_matrix* m, size_t ellipsisThreshold);
 
 void sparse_matrix_free(sparse_matrix* m);
 

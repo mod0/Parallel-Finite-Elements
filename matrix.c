@@ -303,7 +303,6 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, int itr_max, int mr, doubl
 }
 
 typedef void (*PrinterFunction)(sparse_matrix*, int, int);
-#define PRINT_ELLIPSIS_THRESHOLD 8
 #define PRINT_NUM_DIGITS 8
 
 static void printEllipsis(sparse_matrix* m, int row, int col) {
@@ -314,12 +313,12 @@ static void printElement(sparse_matrix* m, int row, int col) {
 	printf("%+*e ", PRINT_NUM_DIGITS, sparse_matrix_get(m, row, col));
 }
 
-static void printRow(sparse_matrix* m, int row, PrinterFunction printer) {
+static void printRow(sparse_matrix* m, size_t ellipsisThreshold, int row, PrinterFunction printer) {
     int numCols = m->size;
 
-    if (numCols > PRINT_ELLIPSIS_THRESHOLD) {
-        int numBeginningCols = PRINT_ELLIPSIS_THRESHOLD / 2;
-        int numEndingCols = PRINT_ELLIPSIS_THRESHOLD - numBeginningCols - 1;
+    if (numCols > ellipsisThreshold) {
+        int numBeginningCols = ellipsisThreshold / 2;
+        int numEndingCols = ellipsisThreshold - numBeginningCols - 1;
         int c;
         for (c = 0; c < numBeginningCols; c++) {
             printer(m, row, c);
@@ -339,26 +338,26 @@ static void printRow(sparse_matrix* m, int row, PrinterFunction printer) {
     printf("\n");
 }
 
-void sparse_matrix_print(sparse_matrix* m) {
+void sparse_matrix_print(sparse_matrix* m, size_t ellipsisThreshold) {
     int numRows = m->size;
 
-    if (numRows > PRINT_ELLIPSIS_THRESHOLD) {
-        int numBeginningRows = PRINT_ELLIPSIS_THRESHOLD / 2;
-        int numEndingRows = PRINT_ELLIPSIS_THRESHOLD - numBeginningRows - 1;
+    if (numRows > ellipsisThreshold) {
+        int numBeginningRows = ellipsisThreshold / 2;
+        int numEndingRows = ellipsisThreshold - numBeginningRows - 1;
         int r;
         for (r = 0; r < numBeginningRows; r++) {
-            printRow(m, r, &printElement);
+            printRow(m, ellipsisThreshold, r, &printElement);
         }
 
-        printRow(m, r, &printEllipsis);
+        printRow(m, ellipsisThreshold, r, &printEllipsis);
 
         for (r = numRows - numEndingRows; r < numRows; r++) {
-            printRow(m, r, &printElement);
+            printRow(m, ellipsisThreshold, r, &printElement);
         }
     } else {
         int r;
         for (r = 0; r < numRows; r++) {
-            printRow(m, r, &printElement);
+            printRow(m, ellipsisThreshold, r, &printElement);
         }
     }
 }
