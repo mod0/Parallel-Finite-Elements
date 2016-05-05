@@ -1,5 +1,4 @@
-
-OBJS = grid.o main.o vector.o matrix.o domain.o elements.o assemble.o error.o fe.o
+OBJS = output.o grid.o main.o vector.o matrix.o domain.o elements.o assemble.o error.o fe.o
 CC = gcc
 CFLAGS = -Wall -g
 
