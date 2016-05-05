@@ -2,7 +2,7 @@
 #include <string.h>
 #include "output.h"
 
-#define FILE_FORMAT "output/domain%d.csv.%d"
+#define FILE_FORMAT "output/subdomain%d.csv.%d"
 
 void file_output_processor(domain* d, int subdomainIdx, int itrNum, output_selector selector) {
     char fileName[2 * strlen(FILE_FORMAT)];
