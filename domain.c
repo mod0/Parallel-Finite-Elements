@@ -100,7 +100,7 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
 // Create vertices in domain
 int create_vertices_for_domain(domain* cartesian_domain)
 {
-  int i, j;
+  int i, j, count;
 
   #define CG (cartesian_domain->cartesian_grid)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
@@ -109,13 +109,15 @@ int create_vertices_for_domain(domain* cartesian_domain)
 
   #define CDV (cartesian_domain->vertices)
 
+  count = 0;
   for(i = 0; i < CDN; i++)                             // Go one row after another
   {
     for(j = 0; j < CDN; j++)                           // Loop over columns
     {
-      CDV[i].id = i * CDN + j;
-      CDV[i].x = CG->grid_nodes_x[j];
-      CDV[i].y = CG->grid_nodes_y[i];
+      CDV[count].id = i * CDN + j;
+      CDV[count].x = CG->grid_nodes_x[j];
+      CDV[count].y = CG->grid_nodes_y[i];
+      count++;
     }
   }
   #undef CDN
