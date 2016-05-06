@@ -2,6 +2,7 @@
 #define __MATRIX_H__
 
 #include "vector.h"
+#include "parameters.h"
 
 typedef struct
 {
@@ -21,7 +22,7 @@ void sparse_matrix_vector_multiply(sparse_matrix* m, vector* x, vector* w);
 
 double sparse_matrix_frobenius_norm(sparse_matrix* m);
 
-void mgmres(sparse_matrix* matrix, vector* x, vector* rhs, int itr_max, int mr, double tol_abs, double tol_rel);
+void mgmres(sparse_matrix* matrix, vector* x, vector* rhs, mgmres_parameters* params);
 
 void sparse_matrix_print(sparse_matrix* m, size_t ellipsisThreshold);
 
