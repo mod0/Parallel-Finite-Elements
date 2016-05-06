@@ -11,7 +11,8 @@
 #include "domain.h"
 #include "elements.h"
 #include "assemble.h"
-#include "fep.h"
+#include "parameters.h"
+#include "solver.h"
 
 int main(int argc, char** argv)
 {
@@ -25,6 +26,9 @@ int main(int argc, char** argv)
   int N = 100;        // The number of grid segments in each direction
   int subdomains = 1; // The number of threads in the system
   int overlap_in_each_direction = 0; // Amount of overlap in each direction -> 2 times will be the amount of overlap
+
+  mgmres_parameters linear_solve_parameters = {.outerItr = N, .innerItr = 1, .absTol = 1e-5, .relTol = 1e-6};
+  elliptic_solver_parameters solver_parameters = {.mgmres_parameters = linear_solve_parameters, .outputProcessor = file_output_processor, .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = subdomain_count_x};
 
   // Create a grid with the grid properties
   grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);
@@ -52,6 +56,9 @@ int main(int argc, char** argv)
   {
     add_triangular_elements_to_subdomains(cartesian_domain, i);
   }
+
+  // Call the solver
+  ellipticsolver(cartesian_domain,  elliptic_solver_parameters);
 
   return 0;
 }

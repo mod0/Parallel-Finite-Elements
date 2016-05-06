@@ -253,3 +253,20 @@ int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction)
 
   return 0;
 }
+
+
+// Boolean method returns true or false to write output for vertex. Each subdomain only writes the right overlap.
+int write_output_for_vertex(domain* cartesian_domain, int subdomainIdx, vertex* v)
+{
+  int ll, ul, global_vertex_i;
+  #define
+  #define CSD (cartesian_domain->subdomains)
+  #define CDN (cartesian_domain->cartesian_grid->N + 1)
+  ll = CSD[subdomainIdx].bottom_left_x;
+  ul = CSD[subdomainIdx].top_right_x - CSD[subdomainIdx].overlap;
+  global_vertex_i = (v->id % CDN);
+  #undef CSD
+  #undef CDN
+
+  return (ll <= global_vertex_i && global_vertex_i <= ul);
+}

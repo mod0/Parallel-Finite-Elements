@@ -62,4 +62,7 @@ int copy_overlap_to_adjacent_neighbours_ghost(domain* cartesian_domain, int idx,
 // Copy the solution from the left or right ghost cell of the same subdomain
 int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction);
 
+// Boolean method returns true or false to write output for vertex. Each subdomain only writes the right overlap.
+int write_output_for_vertex(domain* d, int subdomainIdx, vertex* v);
+
 #endif

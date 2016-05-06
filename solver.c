@@ -6,9 +6,9 @@
 #include "matrix.h"
 #include "output.h"
 
-int ellipticsolver(domain* cartesian_domain)
+int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_parameters)
 {
-  int i;
+  int i, itrCount;
   double rel_error;
   vector* F_array;
   sparse_matrix* K_array;
@@ -27,8 +27,12 @@ int ellipticsolver(domain* cartesian_domain)
     assemble_local_KF(&(K_array[i]), &(F_array[i]), cartesian_domain, i);
   }
 
+  itrCount = 0;
+
   do
   {
+    itrCount++;
+
     for(i = 0 ; i < CSDN; i++)
     {
       // Apply the boundary condition on K and F
@@ -38,7 +42,7 @@ int ellipticsolver(domain* cartesian_domain)
       CSD[i].converged = 0;
 
       // Solve each subdomain
-      mgmres(&(K_array[i]), &(F_array[i]), &(CSD[i].subdomain_solution), 5, 10, ABSTOL, RELTOL);
+      mgmres(&(K_array[i]), &(F_array[i]), &(CSD[i].subdomain_solution), solver_parameters.mgmresParameters);
 
       // Send information left
       copy_overlap_to_adjacent_neighbours_ghost(cartesian, i, -1);
@@ -47,7 +51,7 @@ int ellipticsolver(domain* cartesian_domain)
       rel_error = smooth_solution_and_get_norm(domain, i);
 
       // Check for tolerance and mark as converged if converged
-      if(rel_error < RELTOL)
+      if(rel_error < solver_parameters.solverRelTol)
       {
         CSD[i].converged = 1;
       }
@@ -59,8 +63,13 @@ int ellipticsolver(domain* cartesian_domain)
       copy_from_my_ghost_cell(cartesian, i, -1);
 
       // Write to file
+      solver_parameters.outputProcessor(cartesian_domain, i, itrCount, write_output_for_vertex);
 
-
+      if(itrCount > solver_parameters.maxItr)
+      {
+          warn("The elliptic solver has exceeded the number of maximum iterations");
+          break;
+      }
     }
   } while(!is_converged(cartesian_domain));
 
@@ -69,7 +78,6 @@ int ellipticsolver(domain* cartesian_domain)
 
   return 0;
 }
-
 
 static int is_converged(domain* cartesian_domain)
 {
@@ -88,9 +96,7 @@ static int is_converged(domain* cartesian_domain)
   return converged;
 }
 
-
-
-static double smooth_solution_and_get_norm(cartesian_domain* domain, int idx)
+static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
 {
   int count;
   double true_norm;
