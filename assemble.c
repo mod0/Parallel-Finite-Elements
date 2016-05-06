@@ -11,7 +11,7 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
                        int subdomain_idx)
 {
   int i, k, l, t_idx, Delta;
-	int local_i, local_j;
+    int local_i, local_j;
   int global_element_idx,Nv, Nx, Ny, Nt;
   vector bands[4];
   double Ktilde[3][3] = {{1.0, -0.5, -0.5},
@@ -38,7 +38,7 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
 		 vector_init(&bands[i],vector_sizes[i]);
 	}
 
-	for(t_idx = 1; t_idx <= Nt; t_idx++)
+	for(t_idx = 0; t_idx < Nt; t_idx++)
   {
 		global_element_idx = D->subdomains[subdomain_idx].elements[t_idx];
 		triple_vertices = _triangular_elements[global_element_idx].grid_vertex;
@@ -72,12 +72,13 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
           }
 					else
           {
-						error("Error Indexing local K matrix out of band bounds !");
+						printf("Delta= %d \n",Delta);
+                        error("Error Indexing local K matrix out of band bounds !");
 					}
 				}
 			}
 
-			F->elements[local_i] += Ftilde[k];
+			F->elements[local_i] += Ftilde[k-1];
 		}
 	}
 
@@ -136,8 +137,11 @@ void boundary_op_local_F(vector* F, domain* D, int subdomain_idx)
 
 double bc_choice(domain* D,double u0, int subdomain_idx,
                  int local_coor, int where){
-    int p=2; //get this from mpi
-
+    int p=D->subdomain_count_x;
+    if (p == 1)
+    {
+      return u0;
+    }
     if(subdomain_idx == 0)
     {
       if (where != right)
@@ -171,84 +175,6 @@ double bc_choice(domain* D,double u0, int subdomain_idx,
         return D->subdomains[subdomain_idx].subdomain_solution.elements[local_coor];
       }
     }
-}
-
-void boundary_op_KF(vector* bands, vector* F, domain* D,
-                          int subdomain_idx)
-{
-  int i, j, band_id;
-  int Nx, Ny, Nv;
-  double u0 = 1;
-  double newF;
-
-  Nx = D->subdomains[subdomain_idx].dimX;
-  Ny = D->subdomains[subdomain_idx].dimY;
-  Nv = Nx* Ny;
-  int vector_sizes[4] = {Nv, Nv-1, Nv-Nx, Nv-Nx-1};
-  int local_boundary_element_idx;
-
-  // Update K for Bottom Wall
-  for(i = 0; i < Nx; i++)
-  {
-    local_boundary_element_idx = i;
-    bands[0].elements[local_boundary_element_idx] = 1;
-    newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, bottom);
-    F->elements[local_boundary_element_idx] = newF;
-    for (band_id = 1; band_id < 4; band_id++)
-    {
-        if (local_boundary_element_idx < vector_sizes[band_id])
-        {
-            bands[band_id].elements[local_boundary_element_idx] = 0;
-        }
-    }
-  }
-
-  // Update K for Top Wall
-  for(i = 0; i < Nx; i++)
-  {
-    local_boundary_element_idx = (Ny - 1) * Nx + i;
-    bands[0].elements[local_boundary_element_idx] = 1;
-    newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, top);
-    F->elements[local_boundary_element_idx] = newF;
-    for (band_id = 1; band_id < 4; band_id++)
-    {
-      if (local_boundary_element_idx < vector_sizes[band_id])
-      {
-        bands[band_id].elements[local_boundary_element_idx] = 0;
-      }
-    }
-  }
-
-  // Update K for Right Wall
-  for(j = 0; j < Ny; j++)
-  {
-    local_boundary_element_idx = (j+1)*Nx -1 ;
-    bands[0].elements[local_boundary_element_idx] = 1;
-    newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, right);
-    F->elements[local_boundary_element_idx] = newF;
-    for(band_id=1; band_id < 4; band_id++)
-    {
-      if (local_boundary_element_idx<vector_sizes[band_id])
-      {
-          bands[band_id].elements[local_boundary_element_idx] = 0;
-      }
-    }
-  }
-
-  // Update K for Left Wall
-  for (j = 0; j < Ny; j++) {
-    local_boundary_element_idx = j * Nx;
-    bands[0].elements[local_boundary_element_idx] = 1;
-    newF = bc_choice(D,u0, subdomain_idx, local_boundary_element_idx, left);
-    F->elements[local_boundary_element_idx] = newF;
-    for (band_id = 1; band_id < 4; band_id++)
-    {
-      if (local_boundary_element_idx < vector_sizes[band_id])
-      {
-        bands[band_id].elements[local_boundary_element_idx] = 0;
-      }
-    }
-  }
 }
 
 
