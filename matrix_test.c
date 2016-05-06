@@ -112,7 +112,7 @@ static void test_mgmres() {
     vector x_estimate;
     vector_init(&x_estimate, N);
 
-    mgmres(&m, &x_estimate, &rhs, &params);
+    mgmres(&m, &x_estimate, &rhs, params);
 
     x_error = 0.0;
     for ( i = 0; i < n; i++ )
@@ -131,14 +131,15 @@ static void test_mgmres() {
 
 void test_matrix_print() {
     int n = 16;
+    int offsets[2] = {2, -1};
     vector v[2];
-    vector_init(&v[0], n); vector_init(&v[1], n - 2);
-    vector_fill(&v[0], 7); vector_fill(&v[1], -3);
+    vector_init(&v[0], n-offsets[0]); vector_init(&v[1], n-offsets[1]);
+    vector_fill(&v[0], 5); vector_fill(&v[1], -3);
 
     sparse_matrix m;
-    sparse_symmetric_banded_init(&m, n, v, 2);
+    sparse_matrix_banded_init(&m, n, v, offsets, 2);
 
-    sparse_matrix_print(&m, 8);
+    sparse_matrix_print(&m, n);
 }
 
 int main() {

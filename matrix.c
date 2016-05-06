@@ -13,44 +13,26 @@ void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero) {
     m->cols = (int*) calloc(numNonzero, sizeof(int));
 }
 
-// Helper function that writes a band to a sparse_matrix.  If the band is not on
-// the main diagonal, it will write it twice, since the matrix is symmetric
-static void fill_band(sparse_matrix* m, vector* band, int* elementIdx) {
-    int bandOffset = m->size - band->size;
 
-    int i;
-    for(i = 0; i < band->size; i++) {
-        double val = band->elements[i];
-
-        m->rows[*elementIdx] = i;
-        m->cols[*elementIdx] = i + bandOffset;
-        m->elements.elements[*elementIdx] = val;
-
-        (*elementIdx)++;
-
-        if (bandOffset != 0) { // Write the band in the lower-left if the band is not on the diagonal
-            m->rows[*elementIdx] = i + bandOffset;
-            m->cols[*elementIdx] = i;
-            m->elements.elements[*elementIdx] = val;
-
-            (*elementIdx)++;
-        }
-    }
-}
-
-
-void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands) {
-    int i;
-    int numNonzero = 0;
+void sparse_matrix_banded_init(sparse_matrix* m, size_t size, vector* bands, int* offsets, size_t numBands) {
+    int i, numNonzero = 0;
     for (i = 0; i < numBands; i++) {
-        int bandLength = bands[i].size;
-        numNonzero += (bandLength == size ? 1 : 2) * bandLength;
+        numNonzero += bands[i].size;
     }
     sparse_matrix_init(m, size, numNonzero);
 
-    int curIdx = 0;
+    int j, curIdx = 0;
     for (i = 0; i < numBands; i++) {
-        fill_band(m, &bands[i], &curIdx);
+        vector band = bands[i];
+        int offset = offsets[i];
+        int rOffset = offset < 0 ? -offset : 0;
+        int cOffset = offset > 0 ? offset : 0;
+        for (j = 0; j < band.size; j++) {
+            m->rows[curIdx] = rOffset + j;
+            m->cols[curIdx] = cOffset + j;
+            m->elements.elements[curIdx] = band.elements[i];
+            curIdx++;
+        }
     }
 }
 

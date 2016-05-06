@@ -14,7 +14,7 @@ typedef struct
 
 void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero);
 
-void sparse_symmetric_banded_init(sparse_matrix* m, size_t size, vector* bands, size_t numBands);
+void sparse_matrix_banded_init(sparse_matrix* m, size_t size, vector* bands, int* offsets, size_t numBands);
 
 double sparse_matrix_get(sparse_matrix* m, int row, int col);
 
