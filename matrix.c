@@ -303,10 +303,11 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, int itr_max, int mr, doubl
 }
 
 typedef void (*PrinterFunction)(sparse_matrix*, int, int);
-#define PRINT_NUM_DIGITS 2
+#define PRINT_NUM_DIGITS 3
+#define VERTICAL_ELLIPSIS_PADDING 7
 
 static void printEllipsis(sparse_matrix* m, int row, int col) {
-	printf("%*s ", PRINT_NUM_DIGITS + 5, "|");
+	printf("%*s ", PRINT_NUM_DIGITS + VERTICAL_ELLIPSIS_PADDING, "|");
 }
 
 static void printElement(sparse_matrix* m, int row, int col) {

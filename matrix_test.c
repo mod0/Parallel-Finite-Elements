@@ -132,7 +132,7 @@ static void test_mgmres() {
 }
 
 void test_matrix_print() {
-    int n = 6;
+    int n = 16;
     vector v[2];
     vector_init(&v[0], n); vector_init(&v[1], n - 2);
     vector_fill(&v[0], 7); vector_fill(&v[1], -3);
