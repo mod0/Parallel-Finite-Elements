@@ -106,7 +106,7 @@ void boundary_op_local_F(vector* F, domain* D, int subdomain_idx)
 {
   int i, j;
   int Nx, Ny;
-  double u0 = 1;
+  double u0 = 0;
   double newF;
   Nx = D->subdomains[subdomain_idx].dimX;
   Ny = D->subdomains[subdomain_idx].dimY;
