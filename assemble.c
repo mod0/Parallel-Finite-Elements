@@ -75,15 +75,15 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
         }
         else if(Delta== -1)
         {
-          bands[6].elements[local_j] += Ktilde[k-1][l-1];
+          bands[6].elements[local_i - 1] += Ktilde[k-1][l-1];
         }
         else if(Delta == -Nx)
         {
-          bands[5].elements[local_j] += Ktilde[k-1][l-1];
+          bands[5].elements[local_i - Nx] += Ktilde[k-1][l-1];
         }
         else if (Delta == -Nx-1)
         {
-          bands[4].elements[local_j] += Ktilde[k-1][l-1];
+          bands[4].elements[local_i - Nx - 1] += Ktilde[k-1][l-1];
         }
 				else
         {
@@ -96,12 +96,19 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
 		}
 	}
 
+  for (i = 0; i < 7; i++)
+  {
+    vector_print(&bands[i]);
+  }
+
   // apply the boundary conditions before converting to a sparse_symmetric_banded matrix
   boundary_op_K(bands, F, D, subdomain_idx);
   sparse_matrix_banded_init(K, Nv, bands, diagonal_offsets, 7);
+  //sparse_matrix_print(K, 25);
 
   for (i = 0; i < 7; i++)
   {
+    //vector_print(&bands[i]);
     vector_free(&bands[i]);
   }
 }
@@ -207,13 +214,17 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
   // Update K for Bottom Wall
   for (i = 0; i < Nx; i++)
   {
-    local_boundary_element_idx = i;
+    local_boundary_element_idx = i;               // Variable index in the matrix
     bands[0].elements[local_boundary_element_idx] = 1;
     for (band_id = 1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
       {
         bands[band_id].elements[local_boundary_element_idx] = 0;
+      }
+      else if(local_boundary_element_idx + Nv - vector_sizes[band_id] >= 0)
+      {
+          bands[band_id].elements[local_boundary_element_idx] = 0;
       }
     }
   }
@@ -229,6 +240,10 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
       {
           bands[band_id].elements[local_boundary_element_idx] = 0;
       }
+      else if(local_boundary_element_idx + Nv - vector_sizes[band_id] >= 0)
+      {
+          bands[band_id].elements[local_boundary_element_idx] = 0;
+      }
     }
   }
 
@@ -239,9 +254,13 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
     bands[0].elements[local_boundary_element_idx] = 1;
     for(band_id=1; band_id < 7; band_id++)
     {
-      if (local_boundary_element_idx<vector_sizes[band_id])
+      if (local_boundary_element_idx < vector_sizes[band_id])
       {
         bands[band_id].elements[local_boundary_element_idx] = 0;
+      }
+      else if(local_boundary_element_idx + Nv - vector_sizes[band_id] >= 0)
+      {
+          bands[band_id].elements[local_boundary_element_idx] = 0;
       }
     }
   }
@@ -254,6 +273,10 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
     for (band_id = 1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
+      {
+          bands[band_id].elements[local_boundary_element_idx] = 0;
+      }
+      else if(local_boundary_element_idx + Nv - vector_sizes[band_id] >= 0)
       {
           bands[band_id].elements[local_boundary_element_idx] = 0;
       }

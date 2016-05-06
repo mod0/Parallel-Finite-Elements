@@ -30,7 +30,7 @@ void sparse_matrix_banded_init(sparse_matrix* m, size_t size, vector* bands, int
         for (j = 0; j < band.size; j++) {
             m->rows[curIdx] = rOffset + j;
             m->cols[curIdx] = cOffset + j;
-            m->elements.elements[curIdx] = band.elements[i];
+            m->elements.elements[curIdx] = band.elements[j];
             curIdx++;
         }
     }
