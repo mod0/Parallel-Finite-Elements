@@ -137,7 +137,7 @@ void boundary_op_local_F(vector* F, domain* D, int subdomain_idx)
 
 double bc_choice(domain* D,double u0, int subdomain_idx,
                  int local_coor, int where){
-    int p=D->subdomain_count_x;
+    int p = D->subdomain_count_x;
     if (p == 1)
     {
       return u0;

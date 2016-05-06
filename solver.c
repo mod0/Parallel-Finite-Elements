@@ -91,8 +91,6 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
   do
   {
-    itrCount++;
-
     for(i = 0 ; i < CSDN; i++)
     {
       // Apply the boundary condition on K and F
@@ -102,7 +100,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
       CSD[i].converged = 0;
 
       // Solve each subdomain
-      mgmres(&(K_array[i]), &(F_array[i]), &(CSD[i].subdomain_solution), solver_parameters.mgmresParameters);
+      mgmres(&(K_array[i]),  &(CSD[i].subdomain_solution), &(F_array[i]), solver_parameters.mgmresParameters);
 
       // Send information left
       copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, -1);
@@ -124,12 +122,12 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
       // Write to file
       solver_parameters.outputProcessor(cartesian_domain, i, itrCount, write_output_for_vertex);
+    }
 
-      if(itrCount > solver_parameters.maxItr)
-      {
-          warn("The elliptic solver has exceeded the number of maximum iterations");
-          break;
-      }
+    if(++itrCount > solver_parameters.maxItr)
+    {
+        warn("The elliptic solver has exceeded the number of maximum iterations");
+        break;
     }
   } while(!is_converged(cartesian_domain));
 
