@@ -129,7 +129,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
         warn("The elliptic solver has exceeded the number of maximum iterations");
         break;
     }
-  } while(!is_converged(cartesian_domain));
+  } while(1); //!is_converged(cartesian_domain)
 
   #undef CSD
   #undef CSDN

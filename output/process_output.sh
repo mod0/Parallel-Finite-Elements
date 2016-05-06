@@ -22,7 +22,7 @@ for f in ${RAW_DATA}; do
 done
 
 # Prepend the header
-sed -i "1i${HEADER}\n" ${CAT_DATA}
+#sed -i "1i${HEADER}\n" ${CAT_DATA}
 
 # Move the raw data into a directory called raw
 rm -rf raw

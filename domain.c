@@ -262,8 +262,15 @@ int write_output_for_vertex(domain* cartesian_domain, int subdomainIdx, vertex* 
   int ll, ul, global_vertex_i;
   #define CSD (cartesian_domain->subdomains)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
-  ll = CSD[subdomainIdx].bottom_left_x;
-  ul = CSD[subdomainIdx].top_right_x - CSD[subdomainIdx].overlap;
+  if(subdomainIdx == 0)
+  {
+    ll = 0;
+  }
+  else
+  {
+    ll = CSD[subdomainIdx].bottom_left_x + CSD[subdomainIdx].overlap;
+  }
+  ul = CSD[subdomainIdx].top_right_x;
   global_vertex_i = (v->id % CDN);
   #undef CSD
   #undef CDN
