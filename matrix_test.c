@@ -140,8 +140,7 @@ void test_matrix_print() {
     sparse_matrix m;
     sparse_symmetric_banded_init(&m, n, v, 2);
 
-    sparse_matrix_print(&m);
-    printf("Test\n");
+    sparse_matrix_print(&m, 8);
 }
 
 int main() {

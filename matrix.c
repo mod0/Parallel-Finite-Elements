@@ -310,7 +310,7 @@ static void printEllipsis(sparse_matrix* m, int row, int col) {
 }
 
 static void printElement(sparse_matrix* m, int row, int col) {
-	printf("%+*e ", PRINT_NUM_DIGITS, sparse_matrix_get(m, row, col));
+	printf("%+.*e ", PRINT_NUM_DIGITS, sparse_matrix_get(m, row, col));
 }
 
 static void printRow(sparse_matrix* m, size_t ellipsisThreshold, int row, PrinterFunction printer) {
