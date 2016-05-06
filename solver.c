@@ -1,4 +1,5 @@
 #include <math.h>
+#include <omp.h>
 
 #include "domain.h"
 #include "assemble.h"
@@ -44,7 +45,7 @@ static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
     {
       for(j = CSD[idx].dimX - CSD[idx].overlap; j < CSD[idx].dimX; j++)
       {
-        weight = (CSD[idx].dimX - j)/(1.0 * CSD[idx].overlap);
+        weight = (CSD[idx].dimX - j - 1)/(1.0 * CSD[idx].overlap - 1);
         current_value = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
         ghost_value = CSD[idx].ghost_subdomain_right.elements[count];
         new_value = (weight * current_value) + ((1.0 - weight) * ghost_value);
@@ -69,7 +70,6 @@ static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
 int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_parameters)
 {
   int i, itrCount;
-  double rel_error;
   vector* F_array;
   sparse_matrix* K_array;
 
@@ -80,6 +80,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
   F_array = calloc(CSDN, sizeof(vector));
   K_array = calloc(CSDN, sizeof(sparse_matrix));
 
+  #pragma omp parallel for private(i)
   for(i = 0 ; i < CSDN; i++)
   {
     // Assemble the K matrix
@@ -91,6 +92,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
   do
   {
+    #pragma omp parallel for private(i)
     for(i = 0 ; i < CSDN; i++)
     {
       // Apply the boundary condition on K and F
@@ -106,7 +108,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
       copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, -1);
 
       // Smooth and compute the norm
-      rel_error = smooth_solution_and_get_norm(cartesian_domain, i);
+      double rel_error = smooth_solution_and_get_norm(cartesian_domain, i);
 
       // Check for tolerance and mark as converged if converged
       if(rel_error < solver_parameters.solverRelTol)
@@ -129,7 +131,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
         warn("The elliptic solver has exceeded the number of maximum iterations");
         break;
     }
-  } while(1); //!is_converged(cartesian_domain)
+} while(!is_converged(cartesian_domain));
 
   #undef CSD
   #undef CSDN

@@ -18,11 +18,11 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
                          {-0.5, 0.5, 0.0},
                          {-0.5, 0.0, 0.5}};
   double h = D->cartesian_grid->h;
-  double diag= h*h*1.0/12;
+  /*double diag= h*h*1.0/12;
   double offdiag = h*h*1.0/24 ;
   double Mtilde[3][3] = {{diag,offdiag, offdiag},
                          {offdiag,diag,offdiag},
-                         {offdiag,offdiag,diag}};
+                         {offdiag,offdiag,diag}};*/
   double vol = 1.0/6 * h * h;
   double Ftilde[3] = {vol, vol, vol};
 	Nx = D->subdomains[subdomain_idx].dimX;
