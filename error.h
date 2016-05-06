@@ -13,4 +13,8 @@
 	fprintf(stderr, "Warning on line %d of %s: %s\n", __LINE__, __FILE__, warnMsg);\
 }
 
+#define log(logMsg) {\
+	printf("Log Message on line %d of %s: %s\n", __LINE__, __FILE__, logMsg);\
+}
+
 #endif

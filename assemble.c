@@ -13,7 +13,7 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
   int i, k, l, t_idx, Delta;
     int local_i, local_j;
   int global_element_idx,Nv, Nx, Ny, Nt;
-  vector bands[4];
+  vector bands[7];
   double Ktilde[3][3] = {{1.0, -0.5, -0.5},
                          {-0.5, 0.5, 0.0},
                          {-0.5, 0.0, 0.5}};
@@ -29,11 +29,12 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
 	Ny = D->subdomains[subdomain_idx].dimY;
 	Nv = Nx* Ny;
 	Nt = (Nx-1)* (Ny -1) *2;
-	int vector_sizes[4] = {Nv,Nv-1,Nv-Nx, Nv-Nx-1};
+  int vector_sizes[7] = {Nv, Nv-1, Nv-Nx, Nv-Nx-1, Nv-Nx-1, Nv-Nx, Nv-1};
+  int diagonal_offsets[7] = {0, 1, Nx, Nx + 1, -Nx-1, -Nx, -1};
   vector_init(F, Nv);
 	vertex** triple_vertices;
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 7; i++)
   {
 		 vector_init(&bands[i],vector_sizes[i]);
 	}
@@ -47,34 +48,47 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
     {
 			local_i =  D->subdomain_vertex_map[subdomain_idx][triple_vertices[k-1]->id];
 
+      printf("local_i %d\n", local_i);
+
       for(l = 1; l <= 3; l++)
       {
 				local_j =  D->subdomain_vertex_map[subdomain_idx][triple_vertices[l-1]->id];
 
-    		if (local_j >= local_i)
+        printf("local_j %d\n", local_j);
+
+				Delta = local_j - local_i;
+				if(Delta == 0)
         {
-					Delta = local_j - local_i;
-					if(Delta == 0)
-          {
-						bands[0].elements[local_i] += Ktilde[k-1][l-1];
-          }
-			    else if(Delta==1)
-          {
-						bands[1].elements[local_i] += Ktilde[k-1][l-1];
-          }
-					else if(Delta == Nx)
-          {
-				  	bands[2].elements[local_i] += Ktilde[k-1][l-1];
-          }
-					else if (Delta == Nx+1)
-          {
-							bands[3].elements[local_i] += Ktilde[k-1][l-1];
-          }
-					else
-          {
-						printf("Delta= %d \n",Delta);
-                        error("Error Indexing local K matrix out of band bounds !");
-					}
+					bands[0].elements[local_i] += Ktilde[k-1][l-1];
+        }
+		    else if(Delta==1)
+        {
+					bands[1].elements[local_i] += Ktilde[k-1][l-1];
+        }
+				else if(Delta == Nx)
+        {
+			  	bands[2].elements[local_i] += Ktilde[k-1][l-1];
+        }
+				else if (Delta == Nx+1)
+        {
+					bands[3].elements[local_i] += Ktilde[k-1][l-1];
+        }
+        else if(Delta== -1)
+        {
+          bands[6].elements[local_j] += Ktilde[k-1][l-1];
+        }
+        else if(Delta == -Nx)
+        {
+          bands[5].elements[local_j] += Ktilde[k-1][l-1];
+        }
+        else if (Delta == -Nx-1)
+        {
+          bands[4].elements[local_j] += Ktilde[k-1][l-1];
+        }
+				else
+        {
+					printf("Delta= %d \n",Delta);
+          error("Error Indexing local K matrix out of band bounds !");
 				}
 			}
 
@@ -84,9 +98,9 @@ void assemble_local_KF(sparse_matrix* K, vector* F, domain* D,
 
   // apply the boundary conditions before converting to a sparse_symmetric_banded matrix
   boundary_op_K(bands, F, D, subdomain_idx);
-  sparse_symmetric_banded_init(K, Nv, bands, 4);
+  sparse_matrix_banded_init(K, Nv, bands, diagonal_offsets, 7);
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 7; i++)
   {
     vector_free(&bands[i]);
   }
@@ -188,15 +202,14 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
   Ny = D->subdomains[subdomain_idx].dimY;
   int local_boundary_element_idx;
   Nv = Nx* Ny;
-  int vector_sizes[4] = {Nv,Nv-1,Nv-Nx, Nv-Nx-1};
-
+  int vector_sizes[7] = {Nv, Nv-1, Nv-Nx, Nv-Nx-1, Nv-Nx-1, Nv-Nx, Nv-1};
 
   // Update K for Bottom Wall
   for (i = 0; i < Nx; i++)
   {
     local_boundary_element_idx = i;
     bands[0].elements[local_boundary_element_idx] = 1;
-    for (band_id = 1; band_id < 4; band_id++)
+    for (band_id = 1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
       {
@@ -210,7 +223,7 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
   {
     local_boundary_element_idx = (Ny - 1) * Nx + i;
     bands[0].elements[local_boundary_element_idx] = 1;
-    for (band_id = 1; band_id < 4; band_id++)
+    for (band_id = 1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
       {
@@ -224,7 +237,7 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
   {
     local_boundary_element_idx = (j+1)*Nx -1 ;
     bands[0].elements[local_boundary_element_idx] = 1;
-    for(band_id=1; band_id<4; band_id++)
+    for(band_id=1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx<vector_sizes[band_id])
       {
@@ -238,7 +251,7 @@ void boundary_op_K(vector* bands, vector* F, domain* D,
   {
     local_boundary_element_idx = j * Nx;
     bands[0].elements[local_boundary_element_idx] = 1;
-    for (band_id = 1; band_id < 4; band_id++)
+    for (band_id = 1; band_id < 7; band_id++)
     {
       if (local_boundary_element_idx < vector_sizes[band_id])
       {
