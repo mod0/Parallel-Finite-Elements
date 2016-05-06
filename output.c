@@ -7,7 +7,7 @@
 void file_output_processor(domain* d, int subdomainIdx, int itrNum, output_selector selector) {
     char fileName[2 * strlen(FILE_FORMAT)];
     sprintf(fileName, FILE_FORMAT, subdomainIdx, itrNum);
-    FILE* file = fopen(fileName, "+w");
+    FILE* file = fopen(fileName, "w+");
 
     subdomain sd = d->subdomains[subdomainIdx];
     int nV = sd.dimX * sd.dimY;

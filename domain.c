@@ -3,6 +3,7 @@
 #include "grid.h"
 #include "domain.h"
 #include "vector.h"
+#include "error.h"
 
 // Convention in ids etc
 // Ids for vertices, triangles follow the matlab id convention - starting at 1
@@ -259,7 +260,6 @@ int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction)
 int write_output_for_vertex(domain* cartesian_domain, int subdomainIdx, vertex* v)
 {
   int ll, ul, global_vertex_i;
-  #define
   #define CSD (cartesian_domain->subdomains)
   #define CDN (cartesian_domain->cartesian_grid->N + 1)
   ll = CSD[subdomainIdx].bottom_left_x;

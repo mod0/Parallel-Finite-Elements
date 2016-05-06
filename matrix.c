@@ -150,7 +150,7 @@ static void free_dense_matrix(double **m, int nrl, int nrh, int ncl, int nch) {
 }
 
 // Restarted GMRES adapted from http://people.sc.fsu.edu/~jburkardt/c_src/mgmres/mgmres.html
-void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters* params) {
+void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters params) {
     double av;
     vector c;
     double delta = 1.0e-03;
@@ -172,7 +172,7 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters* params)
     vector y;
 
     int n = m->size;
-    int mr = params->innerItr;
+    int mr = params.innerItr;
     if (n < mr) {
         error("MGMRES N < MR");
     }
@@ -187,14 +187,14 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters* params)
     h = create_dense_matrix(0, mr, 0, mr - 1);
     v = create_dense_matrix(0, mr, 0, n - 1);
 
-    for (itr = 0; itr < params->outerItr; itr++) {
+    for (itr = 0; itr < params.outerItr; itr++) {
         sparse_matrix_vector_multiply(m, x, &r);
 
         vector_subtract(rhs, &r, &r);
         rho = vector_2_norm(&r);
 
         if (itr == 0) {
-            rho_tol = rho * params->relTol;
+            rho_tol = rho * params.relTol;
         }
 
         for (i = 0; i < n; i++) {
@@ -266,7 +266,7 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters* params)
 
             itr_used = itr_used + 1;
 
-            if (rho <= rho_tol && rho <= params->absTol) {
+            if (rho <= rho_tol && rho <= params.absTol) {
                 break;
             }
         }
@@ -288,7 +288,7 @@ void mgmres(sparse_matrix* m, vector* x, vector* rhs, mgmres_parameters* params)
             }
         }
 
-        if (rho <= rho_tol && rho <= params->absTol) {
+        if (rho <= rho_tol && rho <= params.absTol) {
             break;
         }
     }

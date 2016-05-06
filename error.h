@@ -10,7 +10,7 @@
 }
 
 #define warn(warnMsg) {\
-	fprintf(stderr, "Warning on line %d of %s: %s\n", __LINE__, __FILE__, errorMsg);\
+	fprintf(stderr, "Warning on line %d of %s: %s\n", __LINE__, __FILE__, warnMsg);\
 }
 
 #endif

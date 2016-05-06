@@ -13,6 +13,7 @@
 #include "assemble.h"
 #include "parameters.h"
 #include "solver.h"
+#include "output.h"
 
 int main(int argc, char** argv)
 {
@@ -23,12 +24,12 @@ int main(int argc, char** argv)
   double ub_x = 1;    // The upper bound of the domain in the y direction
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
-  int N = 100;        // The number of grid segments in each direction
+  int N = 10;        // The number of grid segments in each direction
   int subdomains = 1; // The number of threads in the system
   int overlap_in_each_direction = 0; // Amount of overlap in each direction -> 2 times will be the amount of overlap
 
   mgmres_parameters linear_solve_parameters = {.outerItr = N, .innerItr = 1, .absTol = 1e-5, .relTol = 1e-6};
-  elliptic_solver_parameters solver_parameters = {.mgmres_parameters = linear_solve_parameters, .outputProcessor = file_output_processor, .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = subdomain_count_x};
+  elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor, .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = subdomains};
 
   // Create a grid with the grid properties
   grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
   }
 
   // Call the solver
-  ellipticsolver(cartesian_domain,  elliptic_solver_parameters);
+  ellipticsolver(cartesian_domain,  solver_parameters);
 
   return 0;
 }

@@ -5,79 +5,7 @@
 #include "solver.h"
 #include "matrix.h"
 #include "output.h"
-
-int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_parameters)
-{
-  int i, itrCount;
-  double rel_error;
-  vector* F_array;
-  sparse_matrix* K_array;
-
-  #define CSDN (cartesian_domain->subdomain_count_x)
-  #define CSD (cartesian_domain->cartesian_subdomain)
-
-  // Create an array of F vectors and K arrays
-  F_array = calloc(CSDN, sizeof(vector));
-  K_array = calloc(CSDN, sizeof(sparse_matrix));
-
-  for(i = 0 ; i < CSDN; i++)
-  {
-    // Assemble the K matrix
-    // Assemble the load vector_init
-    assemble_local_KF(&(K_array[i]), &(F_array[i]), cartesian_domain, i);
-  }
-
-  itrCount = 0;
-
-  do
-  {
-    itrCount++;
-
-    for(i = 0 ; i < CSDN; i++)
-    {
-      // Apply the boundary condition on K and F
-      boundary_op_local_F(&(F_array[i]));
-
-      // Mark the subdomain as not converged
-      CSD[i].converged = 0;
-
-      // Solve each subdomain
-      mgmres(&(K_array[i]), &(F_array[i]), &(CSD[i].subdomain_solution), solver_parameters.mgmresParameters);
-
-      // Send information left
-      copy_overlap_to_adjacent_neighbours_ghost(cartesian, i, -1);
-
-      // Smooth and compute the norm
-      rel_error = smooth_solution_and_get_norm(domain, i);
-
-      // Check for tolerance and mark as converged if converged
-      if(rel_error < solver_parameters.solverRelTol)
-      {
-        CSD[i].converged = 1;
-      }
-
-      // Send information right
-      copy_overlap_to_adjacent_neighbours_ghost(cartesian, i, 1);
-
-      // Copy information from the left ghost cell of the current subdomain
-      copy_from_my_ghost_cell(cartesian, i, -1);
-
-      // Write to file
-      solver_parameters.outputProcessor(cartesian_domain, i, itrCount, write_output_for_vertex);
-
-      if(itrCount > solver_parameters.maxItr)
-      {
-          warn("The elliptic solver has exceeded the number of maximum iterations");
-          break;
-      }
-    }
-  } while(!is_converged(cartesian_domain));
-
-  #undef CSD
-  #undef CSDN
-
-  return 0;
-}
+#include "error.h"
 
 static int is_converged(domain* cartesian_domain)
 {
@@ -85,7 +13,7 @@ static int is_converged(domain* cartesian_domain)
   int converged = 1;
 
   #define CSDN (cartesian_domain->subdomain_count_x)
-  #define CSD (cartesian_domain->cartesian_subdomain)
+  #define CSD (cartesian_domain->subdomains)
   for(i = 0; i < CSDN; i++)
   {
     converged &= (CSD[i].converged != 0);
@@ -98,13 +26,13 @@ static int is_converged(domain* cartesian_domain)
 
 static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
 {
-  int count;
+  int i, j, count;
   double true_norm;
   double deviation_norm;
   double current_value, ghost_value, new_value;
   double weight;
   #define CSDN (cartesian_domain->subdomain_count_x)
-  #define CSD (cartesian_domain->cartesian_subdomain)
+  #define CSD (cartesian_domain->subdomains)
 
   true_norm = 0.0;
   deviation_norm = 0.0;
@@ -136,4 +64,77 @@ static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
   #undef CSDN
 
   return sqrt(deviation_norm/true_norm);
+}
+
+int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_parameters)
+{
+  int i, itrCount;
+  double rel_error;
+  vector* F_array;
+  sparse_matrix* K_array;
+
+  #define CSDN (cartesian_domain->subdomain_count_x)
+  #define CSD (cartesian_domain->subdomains)
+
+  // Create an array of F vectors and K arrays
+  F_array = calloc(CSDN, sizeof(vector));
+  K_array = calloc(CSDN, sizeof(sparse_matrix));
+
+  for(i = 0 ; i < CSDN; i++)
+  {
+    // Assemble the K matrix
+    // Assemble the load vector_init
+    assemble_local_KF(&(K_array[i]), &(F_array[i]), cartesian_domain, i);
+  }
+
+  itrCount = 0;
+
+  do
+  {
+    itrCount++;
+
+    for(i = 0 ; i < CSDN; i++)
+    {
+      // Apply the boundary condition on K and F
+      boundary_op_local_F(&(F_array[i]), cartesian_domain, i);
+
+      // Mark the subdomain as not converged
+      CSD[i].converged = 0;
+
+      // Solve each subdomain
+      mgmres(&(K_array[i]), &(F_array[i]), &(CSD[i].subdomain_solution), solver_parameters.mgmresParameters);
+
+      // Send information left
+      copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, -1);
+
+      // Smooth and compute the norm
+      rel_error = smooth_solution_and_get_norm(cartesian_domain, i);
+
+      // Check for tolerance and mark as converged if converged
+      if(rel_error < solver_parameters.solverRelTol)
+      {
+        CSD[i].converged = 1;
+      }
+
+      // Send information right
+      copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, 1);
+
+      // Copy information from the left ghost cell of the current subdomain
+      copy_from_my_ghost_cell(cartesian_domain, i, -1);
+
+      // Write to file
+      solver_parameters.outputProcessor(cartesian_domain, i, itrCount, write_output_for_vertex);
+
+      if(itrCount > solver_parameters.maxItr)
+      {
+          warn("The elliptic solver has exceeded the number of maximum iterations");
+          break;
+      }
+    }
+  } while(!is_converged(cartesian_domain));
+
+  #undef CSD
+  #undef CSDN
+
+  return 0;
 }

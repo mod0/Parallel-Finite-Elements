@@ -14,7 +14,7 @@ typedef struct
 typedef struct
 {
     mgmres_parameters mgmresParameters;
-    output_processor* outputProcessor;
+    output_processor outputProcessor;
     int maxItr;
     double solverAbsTol;
     double solverRelTol;
