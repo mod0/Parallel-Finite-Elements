@@ -42,6 +42,16 @@ int build_subdomains_in_domain(domain* cartesian_domain, int overlap)
   #define CSD (cartesian_domain->subdomains)
   #define CSDN (cartesian_domain->subdomain_count_x)
 
+  if(CDN % CSDN != 0)
+  {
+    error("The number of points in the grid is not divisible by the count of subdomains");
+  }
+
+  if(CDN/CSDN < 4*overlap)
+  {
+    warn("The size of overlap is approaching the size of subdomain. Things will break.");
+  }
+
   cartesian_domain->subdomains = (subdomain*) calloc(CSDN, sizeof(subdomain));
 
   for(i = 0; i < CSDN; i++)
@@ -155,7 +165,7 @@ int create_vertex_subdomain_mapping(domain* cartesian_domain, int idx)
 }
 
 // Copy the solution to the right, left, or both subdomains
-int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction)
+int copy_overlap_to_adjacent_neighbours_ghost(domain* cartesian_domain, int idx, int direction)
 {
   int i, j;
   int count;
@@ -188,6 +198,51 @@ int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction)
         for(j = CSD[idx].dimX - CSD[idx].overlap; j < CSD[idx].dimX; j++)
         {
           CSD[idx + 1].ghost_subdomain_left.elements[count++] = CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j];
+        }
+      }
+    }
+  }
+
+  #undef CSD
+  #undef CSDN
+
+  return 0;
+}
+
+// Copy the solution from the left or right ghost cell of the same subdomain
+int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction)
+{
+  int i, j;
+  int count;
+
+  #define CSD (cartesian_domain->subdomains)
+  #define CSDN (cartesian_domain->subdomain_count_x)
+
+  if(direction <= 0)
+  {
+    if(idx > 0)  // copy from left
+    {
+      count = 0;
+      for(i = 0; i < CSD[idx].dimY; i++)
+      {
+        for(j = 0; j < CSD[idx].overlap; j++)
+        {
+          CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j] = CSD[idx].ghost_subdomain_left.elements[count++];
+        }
+      }
+    }
+  }
+
+  if(direction >= 0)
+  {
+    if(idx < CSDN - 1) // copy from right
+    {
+      count = 0;
+      for(i = 0; i < CSD[idx].dimY; i++)
+      {
+        for(j = CSD[idx].dimX - CSD[idx].overlap; j < CSD[idx].dimX; j++)
+        {
+          CSD[idx].subdomain_solution.elements[i*CSD[idx].dimX + j] = CSD[idx].ghost_subdomain_right.elements[count++];
         }
       }
     }

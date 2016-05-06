@@ -9,4 +9,8 @@
         exit(EXIT_FAILURE);\
 }
 
+#define warn(warnMsg) {\
+	fprintf(stderr, "Warning on line %d of %s: %s\n", __LINE__, __FILE__, errorMsg);\
+}
+
 #endif

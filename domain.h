@@ -57,6 +57,9 @@ int create_vertices_for_domain(domain* cartesian_domain);
 int create_vertex_subdomain_mapping(domain* cartesian_domain, int subdomain_index);
 
 // Copy overlapping solution to adjacent subdomains
-int copy_ghost_overlap(domain* cartesian_domain, int idx, int direction);
+int copy_overlap_to_adjacent_neighbours_ghost(domain* cartesian_domain, int idx, int direction);
+
+// Copy the solution from the left or right ghost cell of the same subdomain
+int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction);
 
 #endif
