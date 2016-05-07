@@ -16,6 +16,7 @@ int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain)
   #define CDV (cartesian_domain->vertices)
 
   nT = 2 * (CDN - 1) * (CDN - 1);
+  _total_grid_elements = 0;
   _triangular_elements = calloc(nT, sizeof(triangular_element));
 
   for(i = 0; i < CDN - 1; i++)
@@ -35,12 +36,14 @@ int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain)
       _triangular_elements[tid].grid_vertex[0] = vertex3;
       _triangular_elements[tid].grid_vertex[1] = vertex1;
       _triangular_elements[tid].grid_vertex[2] = vertex4;
+      _total_grid_elements++;
 
       _triangular_elements[tid + 1].id = tid + 1;
       _triangular_elements[tid + 1].cartesian_domain = cartesian_domain;
       _triangular_elements[tid + 1].grid_vertex[0] = vertex2;
       _triangular_elements[tid + 1].grid_vertex[1] = vertex4;
       _triangular_elements[tid + 1].grid_vertex[2] = vertex1;
+      _total_grid_elements++;
     }
   }
 
@@ -76,6 +79,18 @@ int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx)
 
   #undef CSD
   #undef CDN
+
+  return 0;
+}
+
+
+// Remove all triangular elements from heap
+int cleanup_triangular_elements()
+{
+  if(_triangular_elements != NULL)
+  {
+    free(_triangular_elements);
+  }
 
   return 0;
 }

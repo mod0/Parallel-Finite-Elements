@@ -131,7 +131,29 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
         warn("The elliptic solver has exceeded the number of maximum iterations");
         break;
     }
-} while(!is_converged(cartesian_domain));
+  } while(!is_converged(cartesian_domain));
+
+  if(K_array != NULL)
+  {
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++)
+    {
+      sparse_matrix_free(&(K_array[i]));
+    }
+
+    free(K_array);
+  }
+
+  if(F_array != NULL)
+  {
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++)
+    {
+      vector_free(&(F_array[i]));
+    }
+
+    free(F_array);
+  }
 
   #undef CSD
   #undef CSDN

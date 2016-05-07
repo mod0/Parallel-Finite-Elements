@@ -277,3 +277,93 @@ int write_output_for_vertex(domain* cartesian_domain, int subdomainIdx, vertex* 
 
   return (ll <= global_vertex_i && global_vertex_i <= ul);
 }
+
+
+// Remove all vertex objects from heap
+int cleanup_vertices(domain* cartesian_domain)
+{
+  #define CDV (cartesian_domain->vertices)
+  if(CDV != NULL)
+  {
+    free(CDV);
+  }
+  #undef CDV
+
+  return 0;
+}
+
+// Remove all subdomain objects from heap
+int cleanup_subdomains(domain* cartesian_domain)
+{
+  int i;
+
+  #define CSD (cartesian_domain->subdomains)
+  #define CSDN (cartesian_domain->subdomain_count_x)
+  for(i = 0 ; i < CSDN; i++)
+  {
+    if(CSD[i].subdomain_vertices != NULL)
+    {
+      free(CSD[i].subdomain_vertices);
+    }
+
+    vector_free(&(CSD[i].subdomain_solution));
+    if(i != 0)
+    {
+      vector_free(&(CSD[i].ghost_subdomain_left));
+    }
+
+    if(i != CSDN - 1)
+    {
+      vector_free(&(CSD[i].ghost_subdomain_right));
+    }
+
+    if(CSD[i].elements != NULL)
+    {
+      free(CSD[i].elements);
+    }
+  }
+  #undef CSDN
+  #undef CSD
+
+  return 0;
+}
+
+// Remove domain object from heap
+int cleanup_domain(domain* cartesian_domain)
+{
+  int i;
+  #define CDM (cartesian_domain->subdomain_vertex_map)
+  #define CSD (cartesian_domain->subdomains)
+  #define CSDN (cartesian_domain->subdomain_count_x)
+
+  if(cartesian_domain != NULL)
+  {
+    cleanup_vertices(cartesian_domain);
+
+    if(CDM != NULL)
+    {
+      for(i = 0; i < CSDN; i++)
+      {
+        if(CDM[i] != NULL)
+        {
+          free(CDM[i]);
+        }
+      }
+
+      free(CDM);
+    }
+
+    if(CSD != NULL)
+    {
+      free(CSD);
+    }
+
+    free(cartesian_domain);
+  }
+
+  #undef CDM
+  #undef CSD
+  #undef CSDN
+
+  return 0;
+}

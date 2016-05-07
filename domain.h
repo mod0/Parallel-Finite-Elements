@@ -65,4 +65,13 @@ int copy_from_my_ghost_cell(domain* cartesian_domain, int idx, int direction);
 // Boolean method returns true or false to write output for vertex. Each subdomain only writes the right overlap.
 int write_output_for_vertex(domain* d, int subdomainIdx, vertex* v);
 
+// Remove all vertex objects from heap
+int cleanup_vertices(domain* cartesian_domain);
+
+// Remove all subdomain objects from heap
+int cleanup_subdomains(domain* cartesian_domain);
+
+// Remove domain object from heap
+int cleanup_domain(domain* cartesian_domain);
+
 #endif

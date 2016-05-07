@@ -13,6 +13,9 @@ typedef struct
   vertex* grid_vertex[3];
 } triangular_element;
 
+// Count of number of elements;
+int _total_grid_elements;
+
 // Create a global array of elements
 triangular_element* _triangular_elements;
 
@@ -21,5 +24,8 @@ int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain);
 
 // Add element indices to subdomains
 int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx);
+
+// Free memory allocated on heap
+int cleanup_triangular_elements();
 
 #endif

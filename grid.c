@@ -43,3 +43,29 @@ grid* build_cartesian_grid(double lb_x, double ub_x, double lb_y, double ub_y, i
   cartesian_grid->grid_nodes_y = uniform_partition(lb_y, ub_y, N);  // Partition in y direction
   return cartesian_grid;
 }
+
+
+int cleanup_grid(grid* cartesian_grid)
+{
+  #define CGX (cartesian_grid->grid_nodes_x)
+  #define CGY (cartesian_grid->grid_nodes_y)
+
+  if(cartesian_grid != NULL)
+  {
+    if(CGX != NULL)
+    {
+      free(CGX);
+    }
+
+    if(CGY != NULL)
+    {
+      free(CGY);
+    }
+
+    free(cartesian_grid);
+  }
+
+  #undef CG
+
+  return 0;
+}
