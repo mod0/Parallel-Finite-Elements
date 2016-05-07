@@ -108,7 +108,10 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
       // Send information left
       copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, -1);
+    }
 
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++) {
       // Smooth and compute the norm
       double rel_error = smooth_solution_and_get_norm(cartesian_domain, i);
 
@@ -120,7 +123,10 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
       // Send information right
       copy_overlap_to_adjacent_neighbours_ghost(cartesian_domain, i, 1);
+    }
 
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++) {
       // Copy information from the left ghost cell of the current subdomain
       copy_from_my_ghost_cell(cartesian_domain, i, -1);
 

@@ -25,9 +25,9 @@ int main(int argc, char** argv)
   double ub_x = 1;    // The upper bound of the domain in the y direction
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
-  int N = 99;        // The number of grid segments in each direction
-  int subdomains = 2; // The number of threads in the system
-  int overlap_in_each_direction = 10; // Amount of overlap in each direction -> 2 times will be the amount of overlap
+  int N = 399;        // The number of grid segments in each direction
+  int subdomains = 8; // The number of threads in the system
+  int overlap_in_each_direction = 6; // Amount of overlap in each direction -> 2 times will be the amount of overlap
 
   #ifdef _OPENMP
     omp_set_num_threads(subdomains);
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
   mgmres_parameters linear_solve_parameters = {.outerItr = 2, .innerItr = N, .absTol = 1e-8, .relTol = 1e-8};
   elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor,
-                                                  .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = 10};
+                                                  .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = 20};
 
   // Create a grid with the grid properties
   grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);

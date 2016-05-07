@@ -17,7 +17,7 @@ domain* build_cartesian_domain(grid* cartesian_grid, int subdomain_count_x)
   cartesian_domain = calloc(1, sizeof(domain));
   cartesian_domain->cartesian_grid = cartesian_grid;
   cartesian_domain->subdomain_count_x = subdomain_count_x;
-  cartesian_domain->subdomain_vertex_map = calloc(2, sizeof(int*));
+  cartesian_domain->subdomain_vertex_map = calloc(subdomain_count_x, sizeof(int*));
   #define CDM (cartesian_domain->subdomain_vertex_map)
   for(i = 0; i < subdomain_count_x; i++)
   {
@@ -274,7 +274,7 @@ int write_output_for_vertex(domain* cartesian_domain, int subdomainIdx, vertex* 
   global_vertex_i = (v->id % CDN);
   #undef CSD
   #undef CDN
-
+// return 1;
   return (ll <= global_vertex_i && global_vertex_i <= ul);
 }
 
@@ -340,23 +340,14 @@ int cleanup_domain(domain* cartesian_domain)
   {
     cleanup_vertices(cartesian_domain);
 
-    if(CDM != NULL)
-    {
       for(i = 0; i < CSDN; i++)
       {
-        if(CDM[i] != NULL)
-        {
           free(CDM[i]);
-        }
       }
 
       free(CDM);
-    }
 
-    if(CSD != NULL)
-    {
       free(CSD);
-    }
 
     free(cartesian_domain);
   }
