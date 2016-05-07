@@ -25,11 +25,13 @@ int main(int argc, char** argv)
   double ub_x = 1;    // The upper bound of the domain in the y direction
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
-  int N = 9;        // The number of grid segments in each direction
+  int N = 239;        // The number of grid segments in each direction
   int subdomains = 2; // The number of threads in the system
-  int overlap_in_each_direction = 1; // Amount of overlap in each direction -> 2 times will be the amount of overlap
+  int overlap_in_each_direction = 40; // Amount of overlap in each direction -> 2 times will be the amount of overlap
 
-  //omp_set_num_threads(subdomains);
+  #ifdef _OPENMP
+    omp_set_num_threads(subdomains);
+  #endif
 
   mgmres_parameters linear_solve_parameters = {.outerItr = 2, .innerItr = N, .absTol = 1e-8, .relTol = 1e-8};
   elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor,

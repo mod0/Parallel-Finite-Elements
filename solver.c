@@ -92,6 +92,8 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
 
   do
   {
+    printf("Elliptic Solver: Iteration count %d\n", itrCount);
+
     #pragma omp parallel for private(i)
     for(i = 0 ; i < CSDN; i++)
     {
