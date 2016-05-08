@@ -30,6 +30,7 @@ typedef struct subdomain
   vector ghost_subdomain_right;  // Ghost cells into which neighboring threads will write info
   vector subdomain_solution;     // Solution in the subdomain in the global grid vertex order
   vertex** subdomain_vertices;    // Vertices belonging to the subdomain in the global grid vertex order
+  int elements_count;              // The number of elements in the subdomain
   int* elements;                  // List of Elements Indices
   int converged;                  // Boolean flag to check whether the subdomain has converged
 } subdomain;

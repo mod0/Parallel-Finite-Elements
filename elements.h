@@ -6,10 +6,12 @@
 
 
 // Define triangular_element
+// TODO: Make these generic elements
 typedef struct
 {
   int id;
   domain* cartesian_domain;
+  const int element_vertex_count = 3;
   vertex* grid_vertex[3];
 } triangular_element;
 

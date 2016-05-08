@@ -64,6 +64,7 @@ int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx)
 
   nT = 2 * (CSD[idx].dimX - 1) * (CSD[idx].dimY - 1);
   CSD[idx].elements = calloc(nT, sizeof(int));
+  CSD[idx].elements_count = 0;
 
   count = 0;
   for(i = CSD[idx].bottom_left_y; i < CSD[idx].top_right_y; i++)
@@ -74,6 +75,8 @@ int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx)
       tid = 2 * sqid;
       CSD[idx].elements[count++] = tid++;
       CSD[idx].elements[count++] = tid;
+      CSD[idx].elements_count += 2;           // Even though this can be initialized
+                                              // like allocating space, this can be used to debug later
     }
   }
 
