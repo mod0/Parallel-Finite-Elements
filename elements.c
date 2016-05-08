@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "elements.h"
+#include "domain.h"
 
 // Creates elements and stores it in the triangular elements list
 int create_triangular_elements_for_cartesian_domain(domain* cartesian_domain)

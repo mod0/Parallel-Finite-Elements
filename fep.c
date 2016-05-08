@@ -11,7 +11,7 @@ double boundary_value (double x, double y, double t)
 // Define forcing term
 double forcing_term (double x, double y, double t)
 {
-  return 0.0;
+  return 1.0;
 }
 
 // Define initial value operators

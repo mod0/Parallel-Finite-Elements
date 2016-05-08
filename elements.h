@@ -4,14 +4,12 @@
 #include "domain.h"
 #include "grid.h"
 
-
 // Define triangular_element
 // TODO: Make these generic elements
 typedef struct
 {
   int id;
   domain* cartesian_domain;
-  const int element_vertex_count = 3;
   vertex* grid_vertex[3];
 } triangular_element;
 
@@ -29,5 +27,7 @@ int add_triangular_elements_to_subdomains(domain* cartesian_domain, int idx);
 
 // Free memory allocated on heap
 int cleanup_triangular_elements();
+
+#define _triangular_elements_vertex_count  3;
 
 #endif

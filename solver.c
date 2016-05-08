@@ -8,6 +8,14 @@
 #include "output.h"
 #include "error.h"
 
+double _triangular_local_stiffness_matrix[][3] = {{1.0, -0.5, -0.5},
+                                              {-0.5, 0.5, 0.0},
+                                              {-0.5, 0.0, 0.5}};
+
+double _triangular_local_mass_matrix[][3] =  {{1.0/12, 1.0/24, 1.0/24},
+                                          {1.0/24, 1.0/12, 1.0/24},
+                                          {1.0/24, 1.0/24, 1.0/12}};
+
 static int is_converged(domain* cartesian_domain)
 {
   int i;
@@ -69,23 +77,62 @@ static double smooth_solution_and_get_norm(domain* cartesian_domain, int idx)
 
 int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_parameters)
 {
-  int i, itrCount;
+  int Nx, Ny, Nv;
+  int i, itrCount, diag_count;
   vector* F_array;
   sparse_matrix* K_array;
+  int ** vector_sizes_array;
+  int ** diagonal_offsets_array;
 
   #define CSDN (cartesian_domain->subdomain_count_x)
   #define CSD (cartesian_domain->subdomains)
+  #define CG (cartesian_domain->cartesian_grid)
 
   // Create an array of F vectors and K arrays
   F_array = calloc(CSDN, sizeof(vector));
   K_array = calloc(CSDN, sizeof(sparse_matrix));
+  vector_sizes_array = calloc(CSDN, sizeof(int*));
+  diagonal_offsets_array = calloc(CSDN, sizeof(int*));
 
-  #pragma omp parallel for private(i)
+  diag_count = 7;
+
+  for(i = 0; i < CSDN; i++)
+  {
+    vector_sizes_array[i] = calloc(diag_count, sizeof(int));
+    diagonal_offsets_array[i] = calloc(diag_count, sizeof(int));
+  }
+
+  #pragma omp parallel for private(i, Nx, Ny, Nv)
   for(i = 0 ; i < CSDN; i++)
   {
+    Nx = CSD[i].dimX;
+    Ny = CSD[i].dimY;
+    Nv = Nx * Ny;
+
+    vector_sizes_array[i][0] = Nv - Nx - 1;
+    vector_sizes_array[i][1] = Nv - Nx;
+    vector_sizes_array[i][2] = Nv - 1;
+    vector_sizes_array[i][3] = Nv;
+    vector_sizes_array[i][4] = Nv - 1;
+    vector_sizes_array[i][5] = Nv - Nx;
+    vector_sizes_array[i][6] = Nv - Nx - 1;
+
+
+    diagonal_offsets_array[i][0] = - Nx - 1;
+    diagonal_offsets_array[i][1] = - Nx;
+    diagonal_offsets_array[i][2] = - 1;
+    diagonal_offsets_array[i][3] = 0;
+    diagonal_offsets_array[i][4] = 1;
+    diagonal_offsets_array[i][5] = Nx;
+    diagonal_offsets_array[i][6] = Nx + 1;
+
+
     // Assemble the K matrix
+    assemble_global_matrix(cartesian_domain, i, _triangular_local_stiffness_matrix, &(K_array[i]),
+                          vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
+
     // Assemble the load vector_init
-    assemble_local_KF(&(K_array[i]), &(F_array[i]), cartesian_domain, i);
+    assemble_global_load_vector(cartesian_domain, i, &(F_array[i]));
   }
 
   itrCount = 0;
@@ -98,7 +145,7 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
     for(i = 0 ; i < CSDN; i++)
     {
       // Apply the boundary condition on K and F
-      boundary_op_local_F(&(F_array[i]), cartesian_domain, i);
+      apply_boundary_operator_on_vector(cartesian_domain, i, &(F_array[i]));
 
       // Mark the subdomain as not converged
       CSD[i].converged = 0;
@@ -163,8 +210,31 @@ int ellipticsolver(domain* cartesian_domain, elliptic_solver_parameters solver_p
     free(F_array);
   }
 
+  if(vector_sizes_array != NULL)
+  {
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++)
+    {
+      free(vector_sizes_array[i]);
+    }
+
+    free(vector_sizes_array);
+  }
+
+
+  if(diagonal_offsets_array != NULL)
+  {
+    #pragma omp parallel for private(i)
+    for(i = 0 ; i < CSDN; i++)
+    {
+      free(diagonal_offsets_array[i]);
+    }
+
+    free(diagonal_offsets_array);
+  }
+
   #undef CSD
   #undef CSDN
-
+  #undef CG
   return 0;
 }
