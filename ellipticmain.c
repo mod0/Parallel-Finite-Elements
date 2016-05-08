@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
   mgmres_parameters linear_solve_parameters = {.outerItr = 2, .innerItr = N, .absTol = 1e-8, .relTol = 1e-8};
   elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor,
-                                                  .solverAbsTol = 1e-5, .solverRelTol = 1e-6, .maxItr = 20};
+                                                  .solverRelTol = 1e-6, .maxItr = 20};
 
   // Create a grid with the grid properties
   grid* cartesian_grid = build_cartesian_grid(lb_x, ub_x, lb_y, ub_y, N);

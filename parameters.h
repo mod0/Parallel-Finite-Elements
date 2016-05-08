@@ -16,8 +16,17 @@ typedef struct
     mgmres_parameters mgmresParameters;
     output_processor outputProcessor;
     int maxItr;
-    double solverAbsTol;
     double solverRelTol;
 } elliptic_solver_parameters;
+
+typedef struct
+{
+    mgmres_parameters mgmresParameters;
+    output_processor outputProcessor;
+    int maxItr;
+    double solverRelTol;
+    double timeSpan;
+    int numTimeSteps;
+} parabolic_solver_parameters;
 
 #endif

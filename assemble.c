@@ -253,7 +253,7 @@ void apply_boundary_operator_on_matrix(domain* D,  int subdomain_idx, vector* ba
   {
     vertex_id = i;               // Variable index in the matrix
 
-    for(band_id = 1; band_id < diag_count; band_id++)
+    for(band_id = 0; band_id < diag_count; band_id++)
     {
       if(diagonal_offsets[band_id] < 0 && (vertex_id >= Nv - vector_sizes[band_id]))
       {
@@ -275,7 +275,7 @@ void apply_boundary_operator_on_matrix(domain* D,  int subdomain_idx, vector* ba
   {
     vertex_id = (Ny - 1) * Nx + i;
 
-    for(band_id = 1; band_id < diag_count; band_id++)
+    for(band_id = 0; band_id < diag_count; band_id++)
     {
       if(diagonal_offsets[band_id] < 0 && (vertex_id >= Nv - vector_sizes[band_id]))
       {
@@ -297,7 +297,7 @@ void apply_boundary_operator_on_matrix(domain* D,  int subdomain_idx, vector* ba
   {
     vertex_id = (j + 1) * Nx - 1 ;
 
-    for(band_id = 1; band_id < diag_count; band_id++)
+    for(band_id = 0; band_id < diag_count; band_id++)
     {
       if(diagonal_offsets[band_id] < 0 && (vertex_id >= Nv - vector_sizes[band_id]))
       {
@@ -319,7 +319,7 @@ void apply_boundary_operator_on_matrix(domain* D,  int subdomain_idx, vector* ba
   {
     vertex_id = j * Nx;
 
-    for(band_id = 1; band_id < diag_count; band_id++)
+    for(band_id = 0; band_id < diag_count; band_id++)
     {
       if(diagonal_offsets[band_id] < 0 && (vertex_id >= Nv - vector_sizes[band_id]))
       {
