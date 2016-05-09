@@ -281,7 +281,7 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
     diagonal_offsets_array[i] = calloc(diag_count, sizeof(int));
   }
 
-  #pragma omp parallel for private(i, Nx, Ny, Nv, x, y)
+  #pragma omp parallel for private(i, Nx, Ny, Nv, x, y, j)
   for(i = 0 ; i < CSDN; i++)
   {
     Nx = CSD[i].dimX;
@@ -318,8 +318,9 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
                                 vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
     assemble_global_matrix(cartesian_domain, i, rhs, &(RHS_array[i]),
                                 vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
-                                
+
     vector_init(&(F_array[i]),Nv);
+    sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
   }
 
 
@@ -334,7 +335,6 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
       #pragma omp parallel for private(i)
       for (i = 0; i < CSDN; i++) {
         //?? Apply the boundary condition F
-        sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
 
         // Mark the subdomain as not converged
         CSD[i].converged = 0;
@@ -380,7 +380,7 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
       // Write to file
       solver_parameters.outputProcessor(cartesian_domain, i, timeItrCount, write_output_for_vertex);
       // vn = RHS_array*Cn;
-      //sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
+      sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
     }
   }
 
