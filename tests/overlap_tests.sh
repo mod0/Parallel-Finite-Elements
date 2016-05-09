@@ -2,9 +2,9 @@
 
 source ./shared.sh
 
-gridSize=199
-overlaps=(9 13 20)
-numThreads=5
+gridSize=99
+overlaps=(17 18 19 20 21 22)
+numThreads=2
 
 build -fopenmp
 
