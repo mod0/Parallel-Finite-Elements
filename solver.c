@@ -7,6 +7,7 @@
 #include "matrix.h"
 #include "output.h"
 #include "error.h"
+#include "fep.h"
 
 double _triangular_local_stiffness_matrix[][3] = {{1.0, -0.5, -0.5},
                                               {-0.5, 0.5, 0.0},
@@ -316,10 +317,9 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
     assemble_global_matrix(cartesian_domain, i, lhs, &(LHS_array[i]),
                                 vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
     assemble_global_matrix(cartesian_domain, i, rhs, &(RHS_array[i]),
-                           vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
-
+                                vector_sizes_array[i], diagonal_offsets_array[i], diag_count, 1.0);
+                                
     vector_init(&(F_array[i]),Nv);
-    sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
   }
 
 
@@ -333,8 +333,8 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
       printf("Unsteady Elliptic Solver: Inner Iteration count %d\n", pseudoItrCount);
       #pragma omp parallel for private(i)
       for (i = 0; i < CSDN; i++) {
-
         //?? Apply the boundary condition F
+        sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
 
         // Mark the subdomain as not converged
         CSD[i].converged = 0;
@@ -380,7 +380,7 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
       // Write to file
       solver_parameters.outputProcessor(cartesian_domain, i, timeItrCount, write_output_for_vertex);
       // vn = RHS_array*Cn;
-      sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
+      //sparse_matrix_vector_multiply(&(RHS_array[i]), &(CSD[i].subdomain_solution), &(F_array[i]));
     }
   }
 
@@ -449,4 +449,3 @@ int parabolicsolver(domain* cartesian_domain, parabolic_solver_parameters solver
   #undef CG
   return 0;
 }
-
