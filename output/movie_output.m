@@ -8,7 +8,8 @@ zMax = max(z);
 numSteps = length(data);
 movieFrames(numSteps) = struct('cdata', [], 'colormap', []);
 
-figure;
+figure('units','normalized','outerposition',[0 0 1 1]);
+
 
 for i = 1:numSteps
     plot_output(data{i});

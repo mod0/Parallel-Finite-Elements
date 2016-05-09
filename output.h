@@ -9,4 +9,6 @@ typedef void (*output_processor)(domain* d, int subdomainIdx, int itrNum, output
 
 void file_output_processor(domain* d, int subdomainIdx, int itrNum, output_selector selector);
 
+void noop_processor(domain* d, int subdomainIdx, int itrNum, output_selector selector);
+
 #endif

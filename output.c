@@ -21,3 +21,5 @@ void file_output_processor(domain* d, int subdomainIdx, int itrNum, output_selec
 
     fclose(file);
 }
+
+void noop_processor(domain* d, int subdomainIdx, int itrNum, output_selector selector) {}
