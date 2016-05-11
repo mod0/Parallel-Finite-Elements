@@ -25,9 +25,19 @@ int main(int argc, char** argv)
   double ub_x = 1;    // The upper bound of the domain in the y direction
   double lb_y = 0;    // The lower bound of the domain in the y direction`
   double ub_y = 1;    // The upper bound of the domain in the y direction
-  int N = 19;        // The number of grid segments in each direction
+  int N = 99;        // The number of grid segments in each direction
   int subdomains = 1; // The number of threads in the system
   int overlap_in_each_direction = 0; // Amount of overlap in each direction -> 2 times will be the amount of overlap
+
+  if (argc > 1) {
+      subdomains = atoi(argv[1]);
+  }
+  if (argc > 2) {
+      N = atoi(argv[2]);
+  }
+  if (argc > 3) {
+      overlap_in_each_direction = atoi(argv[3]);
+  }
 
   #ifdef _OPENMP
     omp_set_num_threads(subdomains);
