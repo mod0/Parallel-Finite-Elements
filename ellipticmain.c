@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   #endif
 
   mgmres_parameters linear_solve_parameters = {.outerItr = 2, .innerItr = N, .absTol = 1e-8, .relTol = 1e-8};
-  elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = noop_processor,
+  elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor,
                                                   .solverRelTol = 1e-3, .maxItr = 99999};
 
   // Create a grid with the grid properties
