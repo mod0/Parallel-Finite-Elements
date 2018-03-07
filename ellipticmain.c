@@ -30,20 +30,20 @@ int main(int argc, char** argv)
   int overlap_in_each_direction = 4; // Amount of overlap in each direction -> 2 times will be the amount of overlap
 
   if (argc > 1) {
-      subdomains = atoi(argv[1]);
+    subdomains = atoi(argv[1]);
   }
   if (argc > 2) {
-      N = atoi(argv[2]);
+    N = atoi(argv[2]);
   }
   if (argc > 3) {
-      overlap_in_each_direction = atoi(argv[3]);
+    overlap_in_each_direction = atoi(argv[3]);
   }
 
 
 
-  #ifdef _OPENMP
-    omp_set_num_threads(subdomains);
-  #endif
+#ifdef _OPENMP
+  omp_set_num_threads(subdomains);
+#endif
 
   mgmres_parameters linear_solve_parameters = {.outerItr = 2, .innerItr = N, .absTol = 1e-8, .relTol = 1e-8};
   elliptic_solver_parameters solver_parameters = {.mgmresParameters = linear_solve_parameters, .outputProcessor = file_output_processor,
@@ -65,18 +65,18 @@ int main(int argc, char** argv)
   create_triangular_elements_for_cartesian_domain(cartesian_domain);
 
   // Add vertices to subdomains and create a vertex subdomain mapping
-  #pragma omp parallel for private(i)
+#pragma omp parallel for private(i)
   for(i = 0; i < subdomains; i++)
-  {
-    create_vertex_subdomain_mapping(cartesian_domain, i);
-  }
+    {
+      create_vertex_subdomain_mapping(cartesian_domain, i);
+    }
 
   // Add elements to subdomains
-  #pragma omp parallel for private(i)
+#pragma omp parallel for private(i)
   for(i = 0; i < subdomains; i++)
-  {
-    add_triangular_elements_to_subdomains(cartesian_domain, i);
-  }
+    {
+      add_triangular_elements_to_subdomains(cartesian_domain, i);
+    }
 
   // Call the solver
   ellipticsolver(cartesian_domain,  solver_parameters);

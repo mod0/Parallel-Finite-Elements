@@ -6,10 +6,10 @@
 
 typedef struct
 {
-    int size;
-    vector elements;
-    int* rows;
-    int* cols;
+  int size;
+  vector elements;
+  int* rows;
+  int* cols;
 } sparse_matrix;
 
 void sparse_matrix_init(sparse_matrix* m, size_t size, size_t numNonzero);

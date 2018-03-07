@@ -5,8 +5,8 @@
 
 typedef struct
 {
-    double* elements;
-    size_t size;
+  double* elements;
+  size_t size;
 } vector;
 
 void vector_init(vector* v, size_t size);
