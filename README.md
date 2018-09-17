@@ -3,6 +3,6 @@ This repository implements domain decomposition based additive Schwarz alogirthm
 
 
 # Contributors
-Mahesh Narayanamurthi
-Steven Roberts
-Arash Sarshar
+- Mahesh Narayanamurthi
+- Steven Roberts
+- Arash Sarshar
